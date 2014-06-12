@@ -53,7 +53,6 @@ public class UI : MonoBehaviour {
 		}else{
 			playing = false;
 			text.text = "Paused";
-			Debug.Log(Time.deltaTime);
 		}
 	}
 }

@@ -5,35 +5,35 @@ using System.Collections.Generic;
 public class CreatureGenerator : MonoBehaviour {
 	public GameObject creaturePlantPrefab;
 	public List<GameObject> creaturePlant;
-	GameObject logic;
+	UI ui;
 	public bool gen;
 	
 	void Start () {
 		gen = false;
-		logic = GameObject.FindWithTag ("Logic");
+		ui = GameObject.FindWithTag ("Logic").GetComponent<UI>();
 		creaturePlant = new List<GameObject>();
 	}
 
 	void Update () {
-		if (!gen & logic.GetComponent<UI> ().playing){
+		if (!gen & ui.playing){
 			Generate ();
 		}
-		if (gen & !logic.GetComponent<UI> ().playing) {
+		if (gen & !ui.playing) {
 			Clear();
 		}
 	}
 
 	void Generate(){
 		int width, height;
-		width = logic.GetComponent<UI> ().width;
-		height = logic.GetComponent<UI> ().height;
-		int l = logic.GetComponent<UI> ().countOfTypes * logic.GetComponent<UI> ().countOfCreature;
-		int mins = logic.GetComponent<UI> ().minCreatureSize;
-		int maxs = logic.GetComponent<UI> ().maxCreatureSize;
+		width = ui.width;
+		height = ui.height;
+		int l = ui.countOfTypes * ui.countOfCreature;
+		int mins = ui.minCreatureSize;
+		int maxs = ui.maxCreatureSize;
 
-		for (int cot = 0; cot < logic.GetComponent<UI>().countOfTypes; cot++){
+		for (int cot = 0; cot < ui.countOfTypes; cot++){
 			int typeSize = Random.Range(mins, maxs);
-			for (int coc = 0; coc < logic.GetComponent<UI>().countOfCreature; coc++){
+			for (int coc = 0; coc < ui.countOfCreature; coc++){
 				GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(Random.Range(-width/2, width/2), Random.Range(-height/2, height/2), 0),Quaternion.Euler(new Vector3(90f, 270f, 270f)));
 				p.GetComponent<CreaturePlant>().Generate(cot,typeSize);
 				creaturePlant.Add(p);

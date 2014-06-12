@@ -8,19 +8,26 @@ public class PlantGenerator : MonoBehaviour {
 	public int count;
 	int range = 100;
 	List<GameObject> plants;
-	GameObject logic;
+	UI ui;
 	public bool gen;
+
+	//Magic
+
+	float minPlantSize = 0.3f;
+	float 
+
+	//Magic End
 
 	
 	void Start (){
-		logic = GameObject.FindWithTag ("Logic");
+		ui = GameObject.FindWithTag ("Logic").GetComponent<UI>();
 		gen = false;
 	}
 	void Update (){
-		if (!gen & logic.GetComponent<UI> ().playing){
+		if (!gen & ui.playing){
 			Generate ();
 		}
-		if (gen & !logic.GetComponent<UI> ().playing) {
+		if (gen & !ui.playing) {
 			Clear();
 		}
 	}
@@ -31,18 +38,17 @@ public class PlantGenerator : MonoBehaviour {
 			GameObject p = (GameObject)Instantiate(plantPrefab,new Vector3(x, y, 0.1f),Quaternion.identity);
 			p.transform.Rotate(new Vector3 (0f, 0f, Random.Range(0f,360f)));
 
-			p.GetComponent<Plant>().Generate(Random.Range(30, 50));
+			p.GetComponent<Plant>().Generate(Random.Range(0.3f, 0.5f));
 			plants.Add(p);
-			//Debug.Log ("Grow at " + x + " " + y + " " + plants.Count);
-		} //else Debug.Log("too meny plants!!! " + plants.Count);
+		}
 	}
 
 	void Generate(){
 		int width, height;
-		width = logic.GetComponent<UI> ().width -2;
-		height = logic.GetComponent<UI> ().height -2;
+		width = ui.width -2;
+		height = ui.height -2;
 		plants = new List<GameObject>();
-		count = logic.GetComponent<UI>().countOfPlant;
+		count = ui.countOfPlant;
 		int x,y;
 		int l = 0;
 		for (x = -width/2; x < width/2; x++ ) {
@@ -60,7 +66,6 @@ public class PlantGenerator : MonoBehaviour {
 				}
 			}
 		}
-		Debug.Log ("Plants " + l);
 		gen = true;
 	}
 

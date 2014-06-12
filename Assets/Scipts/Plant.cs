@@ -4,7 +4,8 @@ using System.Collections;
 public class Plant : MonoBehaviour {
 
 	public int size;
-	public GameObject logic;
+	UI ui;
+	PlantGenerator pg;
 	public bool grow;
 
 	int maxSize = 5000;
@@ -13,60 +14,74 @@ public class Plant : MonoBehaviour {
 	float scaleto;
 	float nextTime;
 
-	public void Generate(int i){
-		int s = (maxSize/100) * i; 
+	//Magic
+	float borderSize = 1f;
+	float minScale = 1f;
+	float minNextTime = 0.5f;
+	float maxNextTime = 2f;
+	float scaleSpeed = 0.01f;
+	float chanceToGrowOther = 0.2f;
+	float sizeToGrow = 0.1f;
+	float growRadius = 3f;
+
+	string loTag = "Logic";
+
+	//Magic End
+
+	public void Generate(float i){
+		int s = Mathf.RoundToInt(maxSize * i); 
 		if (s < maxSize) {
 			size = s;
 		} else {
-			//Debug.Log ("Size > MaxSize in generator");
 			size = maxSize;
 		}
-		transform.localScale = new Vector3 (0f, 0f, 0f);
-		float sc = (1 + ((float)size / maxSize) * 2);
+		transform.localScale = Vector3.zero;
+		float sc = (minScale + ((float)size / maxSize) * 2);
 		scaleto = sc;
 	}
 
 	void Start () {
-		logic = GameObject.FindWithTag ("Logic");
+		pg = GameObject.FindGameObjectWithTag (loTag).GetComponent<PlantGenerator>();
+		ui = GameObject.FindWithTag (loTag).GetComponent<UI>();
 		timer = Time.time;
 		lastTime = timer;
-		nextTime = Random.Range (0.5f, 2f);
+		nextTime = Random.Range (minNextTime, maxNextTime);
 	}
 
 
 	void Update () {
 		timer = Time.time;
 		var scale = Vector3.one * scaleto;
-		transform.localScale = Vector3.Slerp (transform.localScale, scale, 0.01f);
+		transform.localScale = Vector3.Slerp (transform.localScale, scale, scaleSpeed);
 		if (size < 1) Destroy(this.gameObject);
 		if (timer - lastTime >= nextTime){
-			nextTime = Random.Range (0.5f, 2f);
+			nextTime = Random.Range (minNextTime, maxNextTime);
 			lastTime = timer;
-			if (Random.value < 0.3){
-				int g = Mathf.RoundToInt(Mathf.Clamp((float)size / 10, 1, float.MaxValue));
+			if (Random.value < chanceToGrowOther){
+				int g = Mathf.RoundToInt(Mathf.Clamp((float)size * sizeToGrow, 1, float.MaxValue));
 				Grow (g);
 			}
 		}
 	}
 
-	void Grow (int i){
-		if (size + i <= maxSize) {
-			size += i;
+	void Grow (int g){
+		if (size + g <= maxSize) {
+			size += g;
 			if (size > maxSize/8){
-				int width, height;
-				width = logic.GetComponent<UI> ().width;
-				height = logic.GetComponent<UI> ().height;
-				var point = transform.position.ToVector2() + Random.insideUnitCircle * 3;
-				point.x = Mathf.Clamp(point.x, (-width/2)+1, (width/2)-1);
-				point.y = Mathf.Clamp(point.y, (-height/2)+1, (height/2)-1);
-				logic.GetComponent<PlantGenerator>().GrowAt(point.x, point.y);
-				size -= maxSize/100;
+				int width = ui.width/2;
+				int height = ui.height/2;
+				var point = transform.position.ToVector2() + Random.insideUnitCircle * growRadius;
+				point.x = Mathf.Clamp(point.x, -width + borderSize, width - borderSize);
+				point.y = Mathf.Clamp(point.y, -height + borderSize, height - borderSize);
+				pg.GrowAt(point.x, point.y);
+				size -= Mathf.RoundToInt(maxSize * sizeToGrow);
 			}
 
 		} else {
 			size = maxSize;
 		}
-		float sc = (1 + ((float)size / (float)maxSize) * 2);
+		float sizeCoef = (float)size / (float)maxSize;
+		float sc = minScale + (sizeCoef * 2);
 		scaleto = sc;
 	}
 
