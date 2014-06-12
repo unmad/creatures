@@ -7,10 +7,18 @@ public class CreatureGenerator : MonoBehaviour {
 	public List<GameObject> creaturePlant;
 	UI ui;
 	public bool gen;
-	
+
+	//Magic
+	float borderSize = 1f;
+
+	string loTag = "Logic";
+	string wayTag = "waypoint";
+
+	//Magic End
+
 	void Start () {
 		gen = false;
-		ui = GameObject.FindWithTag ("Logic").GetComponent<UI>();
+		ui = GameObject.FindWithTag (loTag).GetComponent<UI>();
 		creaturePlant = new List<GameObject>();
 	}
 
@@ -24,9 +32,8 @@ public class CreatureGenerator : MonoBehaviour {
 	}
 
 	void Generate(){
-		int width, height;
-		width = ui.width;
-		height = ui.height;
+		var width = (ui.width - borderSize)/2;
+		var height = (ui.height - borderSize)/2;
 		int l = ui.countOfTypes * ui.countOfCreature;
 		int mins = ui.minCreatureSize;
 		int maxs = ui.maxCreatureSize;
@@ -34,7 +41,7 @@ public class CreatureGenerator : MonoBehaviour {
 		for (int cot = 0; cot < ui.countOfTypes; cot++){
 			int typeSize = Random.Range(mins, maxs);
 			for (int coc = 0; coc < ui.countOfCreature; coc++){
-				GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(Random.Range(-width/2, width/2), Random.Range(-height/2, height/2), 0),Quaternion.Euler(new Vector3(90f, 270f, 270f)));
+				GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(Random.Range(-width, width), Random.Range(-height, height), 0),Quaternion.Euler(new Vector3(90f, 270f, 270f)));
 				p.GetComponent<CreaturePlant>().Generate(cot,typeSize);
 				creaturePlant.Add(p);
 			}
@@ -42,7 +49,7 @@ public class CreatureGenerator : MonoBehaviour {
 		gen = true;
 	}
 	void Clear (){
-		var waypoints = GameObject.FindGameObjectsWithTag ("waypoint");
+		var waypoints = GameObject.FindGameObjectsWithTag (wayTag);
 		foreach (var w in waypoints) {
 			Destroy(w);
 		}

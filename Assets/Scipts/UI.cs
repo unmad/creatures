@@ -3,6 +3,7 @@ using System.Collections;
 
 public class UI : MonoBehaviour {
 
+	public GameObject back;
 	public int countOfCreature;
 	public int countOfTypes;
 	public int maxCreatureSize;
@@ -15,6 +16,11 @@ public class UI : MonoBehaviour {
 	
 	public bool play;
 	public bool playing;
+
+	void Start (){
+		Camera.main.orthographicSize = (float)height/2;
+		back.transform.localScale = new Vector3(width, height, 0f);
+	}
 	
 	void OnGUI () {
 

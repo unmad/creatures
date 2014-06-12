@@ -13,14 +13,20 @@ public class PlantGenerator : MonoBehaviour {
 
 	//Magic
 
+	float borderSize = 1f;
 	float minPlantSize = 0.3f;
-	float 
+	float maxPlantSize = 0.5f;
+	float zPos = 0.1f;
+	
+	int plantCountCoef = 5;
+
+	string loTag = "Logic";
 
 	//Magic End
 
 	
 	void Start (){
-		ui = GameObject.FindWithTag ("Logic").GetComponent<UI>();
+		ui = GameObject.FindWithTag (loTag).GetComponent<UI>();
 		gen = false;
 	}
 	void Update (){
@@ -34,26 +40,25 @@ public class PlantGenerator : MonoBehaviour {
 
 	public void GrowAt(float x, float y){
 		plants.RemoveAll(delegate (GameObject o) { return o == null; });
-		if (plants.Count < count * 5){
-			GameObject p = (GameObject)Instantiate(plantPrefab,new Vector3(x, y, 0.1f),Quaternion.identity);
+		if (plants.Count < count * ui.height){
+			GameObject p = (GameObject)Instantiate(plantPrefab,new Vector3(x, y, zPos),Quaternion.identity);
 			p.transform.Rotate(new Vector3 (0f, 0f, Random.Range(0f,360f)));
 
-			p.GetComponent<Plant>().Generate(Random.Range(0.3f, 0.5f));
+			p.GetComponent<Plant>().Generate(Random.Range(minPlantSize, maxPlantSize));
 			plants.Add(p);
 		}
 	}
 
 	void Generate(){
-		int width, height;
-		width = ui.width -2;
-		height = ui.height -2;
+		int width = Mathf.RoundToInt((ui.width - borderSize) / 2);
+		int height = Mathf.RoundToInt((ui.height - borderSize) / 2);
 		plants = new List<GameObject>();
 		count = ui.countOfPlant;
 		int x,y;
 		int l = 0;
-		for (x = -width/2; x < width/2; x++ ) {
-			for (y = -height/2; y < height/2; y++ ) {
-				if (Random.Range(0,range) < count/5){
+		for (x = -width; x < width; x++ ) {
+			for (y = -height; y < height; y++ ) {
+				if (Random.Range(0,range) < count / plantCountCoef){
 					if (Random.value < 0.5)
 						GrowAt(x+0.1f, y-0.1f);
 					if (Random.value < 0.5)

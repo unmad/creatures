@@ -48,7 +48,6 @@ public class Plant : MonoBehaviour {
 		nextTime = Random.Range (minNextTime, maxNextTime);
 	}
 
-
 	void Update () {
 		timer = Time.time;
 		var scale = Vector3.one * scaleto;

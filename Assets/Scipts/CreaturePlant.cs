@@ -43,7 +43,7 @@ public class CreaturePlant : MonoBehaviour {
 	float borderSize = 1f;
 	float sizeRangeCoef = 0.2f;
 	float minScale = 0.5f;
-	float minSpeedRange = 0.01f;
+	float minSpeedRange = 0.02f;
 	float maxSpeedRange = 0.1f;
 
 	int sizeToEnergy = 100;
@@ -128,12 +128,12 @@ public class CreaturePlant : MonoBehaviour {
 	}
 
 	void Walk(){
-		int width = ui.width/2;
-		int height = ui.height/2;
+		var width = (ui.width - borderSize) / 2;
+		var height = (ui.height - borderSize) / 2;
 
 		var point = transform.position.ToVector2() + Random.insideUnitCircle * wayPointRange;
-		point.x = Mathf.Clamp(point.x, -width + borderSize, width - borderSize);
-		point.y = Mathf.Clamp(point.y, -height + borderSize, height - borderSize);
+		point.x = Mathf.Clamp(point.x, -width, width );
+		point.y = Mathf.Clamp(point.y, -height, height);
 
 		if (target != null && target.tag == wayTag)
 			DestroyWaypoint();
@@ -203,7 +203,7 @@ public class CreaturePlant : MonoBehaviour {
 		maxEnergy = size * sizeToEnergy;
 		energy = maxEnergy / 2;
 		maxHp = size * sizeToHp;
-		speed = Mathf.Lerp(minSpeedRange, maxSpeedRange, 1 - (size / maxSize));
+		speed = Mathf.Lerp(minSpeedRange, maxSpeedRange, 1 - ((float)size / maxSize));
 		maxSpeed = speed;
 
 		if (Random.value < 0.5)
