@@ -32,8 +32,8 @@ public class CreatureGenerator : MonoBehaviour {
 	}
 
 	void Generate(){
-		var width = (ui.width - borderSize)/2;
-		var height = (ui.height - borderSize)/2;
+		var width = (ui.width / 2) - borderSize;
+		var height = (ui.height / 2) - borderSize;
 		int l = ui.countOfTypes * ui.countOfCreature;
 		int mins = ui.minCreatureSize;
 		int maxs = ui.maxCreatureSize;

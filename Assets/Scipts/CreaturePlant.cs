@@ -128,8 +128,8 @@ public class CreaturePlant : MonoBehaviour {
 	}
 
 	void Walk(){
-		var width = (ui.width - borderSize) / 2;
-		var height = (ui.height - borderSize) / 2;
+		var width = (ui.width / 2) - borderSize;
+		var height = (ui.height / 2) - borderSize;
 
 		var point = transform.position.ToVector2() + Random.insideUnitCircle * wayPointRange;
 		point.x = Mathf.Clamp(point.x, -width, width );

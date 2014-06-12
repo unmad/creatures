@@ -4,22 +4,22 @@ using System.Collections;
 public class Plant : MonoBehaviour {
 
 	public int size;
+	public bool grow;
+	public Material[] mats;
+
 	UI ui;
 	PlantGenerator pg;
-	public bool grow;
 
 	int maxSize = 5000;
+	int material = 0;
 	float timer;
 	float lastTime;
-	float scaleto;
 	float nextTime;
 
 	//Magic
 	float borderSize = 1f;
-	float minScale = 1f;
 	float minNextTime = 0.5f;
 	float maxNextTime = 2f;
-	float scaleSpeed = 0.01f;
 	float chanceToGrowOther = 0.2f;
 	float sizeToGrow = 0.1f;
 	float growRadius = 3f;
@@ -35,9 +35,6 @@ public class Plant : MonoBehaviour {
 		} else {
 			size = maxSize;
 		}
-		transform.localScale = Vector3.zero;
-		float sc = (minScale + ((float)size / maxSize) * 2);
-		scaleto = sc;
 	}
 
 	void Start () {
@@ -50,8 +47,6 @@ public class Plant : MonoBehaviour {
 
 	void Update () {
 		timer = Time.time;
-		var scale = Vector3.one * scaleto;
-		transform.localScale = Vector3.Slerp (transform.localScale, scale, scaleSpeed);
 		if (size < 1) Destroy(this.gameObject);
 		if (timer - lastTime >= nextTime){
 			nextTime = Random.Range (minNextTime, maxNextTime);
@@ -67,21 +62,24 @@ public class Plant : MonoBehaviour {
 		if (size + g <= maxSize) {
 			size += g;
 			if (size > maxSize/8){
-				int width = ui.width/2;
-				int height = ui.height/2;
+				int width = Mathf.RoundToInt(((float)ui.width / 2) - borderSize);
+				int height = Mathf.RoundToInt(((float)ui.height / 2) - borderSize);
 				var point = transform.position.ToVector2() + Random.insideUnitCircle * growRadius;
-				point.x = Mathf.Clamp(point.x, -width + borderSize, width - borderSize);
-				point.y = Mathf.Clamp(point.y, -height + borderSize, height - borderSize);
+				point.x = Mathf.Clamp(point.x, -width, width);
+				point.y = Mathf.Clamp(point.y, -height, height);
 				pg.GrowAt(point.x, point.y);
-				size -= Mathf.RoundToInt(maxSize * sizeToGrow);
 			}
 
 		} else {
 			size = maxSize;
 		}
 		float sizeCoef = (float)size / (float)maxSize;
-		float sc = minScale + (sizeCoef * 2);
-		scaleto = sc;
+		var mat = Mathf.RoundToInt(Mathf.Clamp((sizeCoef * mats.Length) - 1, 0, mats.Length));
+		if (material != mat){
+			material = mat;
+			renderer.material = mats[mat];
+		}
+
 	}
 
 	public int GetSize (){
