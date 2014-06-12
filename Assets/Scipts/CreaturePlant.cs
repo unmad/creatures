@@ -2,6 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 
+public static class VectorExtension{
+	public static Vector2 ToVector2 (this Vector3 v3){
+		return new Vector2 (v3.x, v3.y);
+	}
+}
+
 public class CreaturePlant : MonoBehaviour {
 
 	public GameObject logic;
@@ -14,15 +20,15 @@ public class CreaturePlant : MonoBehaviour {
 	int maxEnergy;
 	float speed;
 	float maxSpeed;
-	public bool gender;
-	public bool life;
+	public bool isMale;
+	public bool alive;
 	public bool wantFuck;
 	int hp;
 	public int maxHp;
 
 	float timer;
 	float lastTime;
-	List<Transform> foods;
+	List<Transform> food;
 	List<Transform> enemy;
 	Transform target;
 	
@@ -33,10 +39,7 @@ public class CreaturePlant : MonoBehaviour {
 	}
 
 	bool InRange (Vector3 pos,Vector3 tar, float range){
-		if ((Mathf.Abs (pos.x - tar.x) < range) && (Mathf.Abs (pos.y - tar.y) < range)) {
-					return true;
-			} else
-					return false;
+		return Vector3.Distance(tar, pos) <= range;
 	}
 
 	void Eat (){
@@ -84,7 +87,7 @@ public class CreaturePlant : MonoBehaviour {
 
 	void LookAt(Vector3 tar){
 		var newRotation = Quaternion.LookRotation(transform.position - tar, Vector3.forward);
-		transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, Time.deltaTime * speed * 100);
+		transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, (float)speed*2);
 	}
 
 	void MoveTo(Vector3 tar){
@@ -101,68 +104,44 @@ public class CreaturePlant : MonoBehaviour {
 	void Walk(){
 		int width = logic.GetComponent<UI> ().width;
 		int height = logic.GetComponent<UI> ().height;
-		float x, y;
 
-		x = Random.Range (-5f, 5f);
-		y = Random.Range (-5f, 5f);
-
-		float maxX, maxY, minX, minY;
-		maxX = width / 2;
-		maxY = height / 2;
-		minX = -width / 2;
-		minY = -height / 2;
-
-		float newX = transform.position.x + x;
-		float newY = transform.position.y + y;
-
-		//Debug.Log ("newx = " + newX + " newy = " + newY);
-
-		if (newX > maxX){
-			newX = maxX - 1f;
-		}
-		if (newX < minX){
-			newX = minX + 1f;
-		}
-		if (newY > maxY){
-			newY = maxY - 1f;
-		}
-		if (newY < minY){
-			newY = minY + 1f;
-		}
-
-		x = newX - transform.position.x;
-		y = newY - transform.position.y;
-
-		//Debug.Log ("x= " + x + "y= " + y);
+		var point = transform.position.ToVector2() + Random.insideUnitCircle * 5;
+		point.x = Mathf.Clamp(point.x, (-width/2)+1, (width/2)-1);
+		point.y = Mathf.Clamp(point.y, (-height/2)+1, (height/2)-1);
 
 		if (target != null && target.name == "waypoint")
 			DestroyWaypoint();
+
 		var wayPoint = new GameObject();
 		target = wayPoint.transform;
 		target.gameObject.name = "waypoint";
 		target.gameObject.tag = "waypoint";
-		target.position = transform.position;
-		target.Translate(new Vector3(x, y, 0f));
+		target.position = new Vector3(point.x, point.y, 0f);
 	}
 
 	bool SearchFood (){
-		foods.RemoveAll(delegate (Transform o) { return o == null; });
-		if (foods.Count > 0){
-			float dis = 99999f;
-			float dis2 = 99999f;
-			foreach (var tar in foods) {
-				if (tar != null){
-					dis = (Vector3.Distance(transform.position,tar.position));
-					if (dis < dis2){
-						if (target != null && target.name == "waypoint")
-							DestroyWaypoint();
-						target = tar;
-						dis2 = dis;
-					}
+		//var food = Physics.OverlapSphere(transform.position, 5);
+
+
+		food.RemoveAll(o => o == null);
+		if (food.Count > 0){
+			float dis = float.MaxValue;
+			float minDis = float.MaxValue;
+
+			if (target != null && target.name == "waypoint")
+				DestroyWaypoint();
+
+			foreach (var tar in food) {
+				dis = (transform.position - tar.position).sqrMagnitude;
+				if (dis < minDis){
+					target = tar;
+					minDis = dis;
 				}
 			}
+
 			return true;
-		} else return false;
+		} else 
+			return false;
 	}
 
 	void Think(){
@@ -199,39 +178,43 @@ public class CreaturePlant : MonoBehaviour {
 		maxHp = size * 10;
 		speed = (10 - (size / 50)) * 0.02f;
 		maxSpeed = speed;
+
 		if (Random.value < 0.5)
-			gender = true;
-		life = true;
+			isMale = true;
+
+		alive = true;
 		wantFuck = false;
 		hp = maxHp;
-		foods = new List<Transform>();
-		GetComponentInChildren <Transform> ().localScale = new Vector3 ((float)size / (float)maxSize, (float)size / (float)maxSize, (float)size / (float)maxSize);
+		food = new List<Transform>();
+		GetComponentInChildren<Transform>().localScale = Vector3.one * (((float)size / (float)maxSize) + 0.5f);
 	}
 	
 	void OnTriggerEnter (Collider col) {
 		if (col.gameObject.name == "Plant(Clone)"){
 			Transform tar = col.transform;
-			if (!foods.Contains(tar)) foods.Add(tar);
+			if (!food.Contains(tar)) food.Add(tar);
 		}
 	}
 
 	void OnTriggerExit (Collider col){
 		Transform tar = col.transform;
-		if (foods.Contains(tar)) foods.Remove(tar);
+		if (food.Contains(tar)) food.Remove(tar);
 	}
 
-	bool GetGender(){
-		return gender;
-	}
+	bool IsMale { get { return isMale; } }
+
 	int GetTypeID(){
 		return typeID;
 	}
+
 	bool GetLife (){
-		return life;
+		return alive;
 	}
+
 	bool GetWantFuck(){
 		return wantFuck;
 	}
+
 	void SetEnergy(int i){
 		if (energy + i < maxEnergy){
 			energy += i;

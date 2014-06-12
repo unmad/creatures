@@ -11,6 +11,7 @@ public class Plant : MonoBehaviour {
 	float timer;
 	float lastTime;
 	float scaleto;
+	float nextTime;
 
 	public void Generate(int i){
 		int s = (maxSize/100) * i; 
@@ -21,7 +22,7 @@ public class Plant : MonoBehaviour {
 			size = maxSize;
 		}
 		transform.localScale = new Vector3 (0f, 0f, 0f);
-		float sc = (1 + ((float)size / (float)maxSize) * 2);
+		float sc = (1 + ((float)size / maxSize) * 2);
 		scaleto = sc;
 	}
 
@@ -29,18 +30,20 @@ public class Plant : MonoBehaviour {
 		logic = GameObject.FindWithTag ("Logic");
 		timer = Time.time;
 		lastTime = timer;
+		nextTime = Random.Range (0.5f, 2f);
 	}
 
 
 	void Update () {
 		timer = Time.time;
-		transform.localScale = Vector3.Slerp (transform.localScale, new Vector3 (scaleto, scaleto, scaleto), 0.01f );
-		if (size < 1) Destroy (this.gameObject);
-		if (timer - lastTime >= Random.Range (0.5f, 2f)){
+		var scale = Vector3.one * scaleto;
+		transform.localScale = Vector3.Slerp (transform.localScale, scale, 0.01f);
+		if (size < 1) Destroy(this.gameObject);
+		if (timer - lastTime >= nextTime){
+			nextTime = Random.Range (0.5f, 2f);
 			lastTime = timer;
 			if (Random.value < 0.3){
-				int g = Mathf.RoundToInt (size / 10);
-				if (g < 1) g = 1;
+				int g = Mathf.RoundToInt(Mathf.Clamp((float)size / 10, 1, float.MaxValue));
 				Grow (g);
 			}
 		}
@@ -50,29 +53,13 @@ public class Plant : MonoBehaviour {
 		if (size + i <= maxSize) {
 			size += i;
 			if (size > maxSize/8){
-				float x, y;
 				int width, height;
 				width = logic.GetComponent<UI> ().width;
 				height = logic.GetComponent<UI> ().height;
-				x = transform.position.x + Random.Range(-3f,3f);
-				y = transform.position.y + Random.Range(-3f,3f);
-				if (x < -width/2+1){
-					x = -width/2 + 2f;
-					//Debug.Log ("x < width " + x);
-				}
-				if (x > width/2-1){
-					x = width/2 - 2f;
-					//Debug.Log ("x > width " + x);
-				}
-				if (y < -height/2+1){
-					y = -height/2 + 2f;
-					//Debug.Log ("y < height " + y);
-				}
-				if (y > height/2-1){
-					y = height/2 - 2f;
-					//Debug.Log ("y > height " + y);
-				}
-				logic.GetComponent<PlantGenerator>().GrowAt(x, y);
+				var point = transform.position.ToVector2() + Random.insideUnitCircle * 3;
+				point.x = Mathf.Clamp(point.x, (-width/2)+1, (width/2)-1);
+				point.y = Mathf.Clamp(point.y, (-height/2)+1, (height/2)-1);
+				logic.GetComponent<PlantGenerator>().GrowAt(point.x, point.y);
 				size -= maxSize/100;
 			}
 
