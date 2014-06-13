@@ -6,16 +6,21 @@ public class UI : MonoBehaviour {
 	public GameObject back;
 	public int countOfCreature;
 	public int countOfTypes;
-	public int maxCreatureSize;
-	public int minCreatureSize;
-	public int countOfPlant;
-	public int rangePlant;
+	public int soilRichness;
 	public int width;
 	public int height;
 	public GUIText text;
 	
 	public bool play;
 	public bool playing;
+
+
+	//for plant generator
+
+
+	//for Creature generator
+
+
 
 	void Start (){
 		Camera.main.orthographicSize = (float)height/2;
@@ -30,7 +35,7 @@ public class UI : MonoBehaviour {
 
 		countOfCreature = (int) GUI.HorizontalScrollbar (new Rect (5, 50, 60, 20), countOfCreature, 1, 2, 10);
 		countOfTypes = (int) GUI.HorizontalScrollbar (new Rect (5, 70, 60, 20), countOfTypes, 1, 1, 10);
-		countOfPlant = (int) GUI.HorizontalScrollbar (new Rect (5, 90, 60, 20), countOfPlant, 1, 1, 100);
+		soilRichness = (int) GUI.HorizontalScrollbar (new Rect (5, 90, 60, 20), soilRichness, 1, 1, 100);
 	}
 	void Update (){
 		if (play)
