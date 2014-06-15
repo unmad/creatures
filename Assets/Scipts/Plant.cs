@@ -63,9 +63,7 @@ public class Plant : MonoBehaviour {
 
 	}
 
-	public int GetSize (){
-		return size;
-	}
+	public int GetSize { get { return size; } }
 
 	public void SetSize(int i){
 		size += i;

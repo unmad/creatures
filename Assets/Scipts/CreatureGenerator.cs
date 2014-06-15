@@ -62,7 +62,7 @@ public class CreatureGenerator : MonoBehaviour {
 			float maxscale = typeScale;
 			float typeSizeCoef = 1f - ((float)typeSize / (float)maxTypeSize);
 			float typeSpeed = Mathf.Lerp(minSpeedRange, maxSpeedRange, typeSizeCoef);
-			Debug.Log("typeSpeed " + typeSpeed);
+			//Debug.Log("typeSpeed " + typeSpeed);
 
 			for (int coc = 0; coc < ui.countOfCreature; coc++){
 				GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(Random.Range(-width, width), Random.Range(-height, height), 0),Quaternion.Euler(new Vector3(90f, 270f, 270f)));
@@ -85,5 +85,9 @@ public class CreatureGenerator : MonoBehaviour {
 		}
 		creaturePlant.ForEach (Destroy);
 		creaturePlant.Clear ();
+		var corpses = GameObject.FindGameObjectsWithTag("Corpse");
+		foreach (var c in corpses) {
+			Destroy(c);
+		}
 	}
 }
