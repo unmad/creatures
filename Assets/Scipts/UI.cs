@@ -20,6 +20,9 @@ public class UI : MonoBehaviour {
 	public bool play;
 	public bool playing;
 
+	PlantGenerator pg = PlantGenerator.PG;
+	CreatureGenerator cg = CreatureGenerator.CG;
+
 
 	//for plant generator
 
@@ -63,8 +66,8 @@ public class UI : MonoBehaviour {
 	void PlayPause (){
 		play = true;
 		if (!playing){
-			GetComponent<CreatureGenerator>().gen = false;
-			GetComponent<PlantGenerator>().gen = false;
+			pg.gen = false;
+			cg.gen = false;
 			playing = true;
 			text.text = "Playing";
 		}else{

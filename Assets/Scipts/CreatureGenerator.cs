@@ -13,7 +13,7 @@ public class CreatureType : MonoBehaviour {
 	public float typeSpeed;
 }
 
-public class CreatureGenerator : MonoBehaviour {
+public sealed class CreatureGenerator : MonoBehaviour {
 	public GameObject creaturePlantPrefab;
 	public List<GameObject> creaturePlant;
 	UI ui;
@@ -47,6 +47,20 @@ public class CreatureGenerator : MonoBehaviour {
 
 	//Magic End
 
+	static readonly CreatureGenerator cg = new CreatureGenerator();
+	
+	static CreatureGenerator() { }  
+	
+	CreatureGenerator() { }  
+	
+	public static CreatureGenerator CG  
+	{  
+		get  
+		{  
+			return cg;  
+		}  
+	}  
+
 	void Start () {
 		gen = false;
 		ui = GameObject.FindWithTag (loTag).GetComponent<UI>();
@@ -68,7 +82,7 @@ public class CreatureGenerator : MonoBehaviour {
 
 			GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(x, y, 0),Quaternion.identity);
 			var cre = p.GetComponent<CreaturePlant>();
-			SetInitVar(p, maxAge, CTypes[type].typeSize, CTypes[type].minscale, CTypes[type].maxscale, type, CTypes[type].typeSpeed);
+			SetInitVar(cre, maxAge, CTypes[type].typeSize, CTypes[type].minscale, CTypes[type].maxscale, type, CTypes[type].typeSpeed);
 			creaturePlant.Add(p);
 		}
 
@@ -76,7 +90,7 @@ public class CreatureGenerator : MonoBehaviour {
 			
 			GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(x, y, 0),Quaternion.identity);
 			var cre = p.GetComponent<CreaturePlant>();
-			SetInitVar(p, maxAge, CTypes[type].typeSize, CTypes[type].minscale, CTypes[type].maxscale, type, CTypes[type].typeSpeed);
+			SetInitVar(cre, maxAge, CTypes[type].typeSize, CTypes[type].minscale, CTypes[type].maxscale, type, CTypes[type].typeSpeed);
 			creaturePlant.Add(p);
 		}
 
@@ -84,7 +98,7 @@ public class CreatureGenerator : MonoBehaviour {
 			
 			GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(x, y, 0),Quaternion.identity);
 			var cre = p.GetComponent<CreaturePlant>();
-			SetInitVar(p, maxAge, CTypes[type].typeSize, CTypes[type].minscale, CTypes[type].maxscale, type, CTypes[type].typeSpeed);
+			SetInitVar(cre, maxAge, CTypes[type].typeSize, CTypes[type].minscale, CTypes[type].maxscale, type, CTypes[type].typeSpeed);
 			creaturePlant.Add(p);
 		}
 
@@ -103,7 +117,7 @@ public class CreatureGenerator : MonoBehaviour {
 		CTypes = new List<CreatureType>();
 
 		for (int cot = 0; cot < ui.countOfTypes; cot++){
-			CreatureType ct;
+			CreatureType ct = new CreatureType();
 			ct.id = cot;
 			ct.eatMeat = false;
 			ct.eatPlant = true;

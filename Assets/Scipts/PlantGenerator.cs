@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class PlantGenerator : MonoBehaviour {
+public sealed class PlantGenerator : MonoBehaviour {
 
 	public GameObject plantPrefab;
 	public int soilRichness; // плодородность почвы в процентах 0-99
@@ -29,7 +29,22 @@ public class PlantGenerator : MonoBehaviour {
 
 	//Magic End
 
+	static readonly PlantGenerator pg = new PlantGenerator();
+
+	static PlantGenerator() { }  
 	
+	PlantGenerator() { }  
+	
+	public static PlantGenerator PG  
+	{  
+		get  
+		{  
+			return pg;  
+		}  
+	}  
+
+
+
 	void Start (){
 		ui = GameObject.FindWithTag("Logic").GetComponent<UI>();
 		gen = false;

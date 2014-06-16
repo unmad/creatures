@@ -2,12 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 
-//public static class VectorExtension{
-//	public static Vector2 ToVector2 (this Vector3 v3){
-//		return new Vector2 (v3.x, v3.y);
-//	}
-//}
-
 public class CreaturePlant : MonoBehaviour {
 
 	public GameObject corpsePrefab;
@@ -17,16 +11,16 @@ public class CreaturePlant : MonoBehaviour {
 	int maxAge;
 	int size;
 	int maxSize;
-	public Transform visual;
-	int energy;
-	int maxEnergy;
+	public Transform visual;// to vismanager
+	int energy;// to energymanager
+	int maxEnergy;// to energymanager
 	float speed;
 	float maxSpeed;
 	bool isMale;
 	bool alive;
 	bool wantFuck;
-	int hp;
-	int maxHp;
+	int hp;// to energymanager
+	int maxHp;// to energymanager
 
 	float timer;
 	float lastTime;
@@ -37,25 +31,20 @@ public class CreaturePlant : MonoBehaviour {
 
 	//Magic
 
-	public float starving;
-	public float hungry;
-	float minScale;
-	float maxScale;
-
-	string plTag = "Plant";
-	//string plLyr = "Food";
+	public float starving;// to energymanager
+	public float hungry;// to energymanager
+	float minScale;// to vismanager
+	float maxScale;// to vismanager
+	
 	string wayTag = "waypoint";
-	string me = "MeatEater";
 
 	//Magic End
 	
 	void Start () {
 		var logic = GameObject.FindWithTag ("Logic");
 		ui = logic.GetComponent<UI>();
-		cg = logic.GetComponent<CreatureGenerator>();
+		cg = CreatureGenerator.CG;
 
-		if (cg == null) 
-			Debug.Log ("cg = NULL");
 		timer = Time.time;
 		lastTime = timer;
 
@@ -78,11 +67,28 @@ public class CreaturePlant : MonoBehaviour {
 		visual.localScale = Vector3.one * (Mathf.Lerp(minScale, maxScale, (float)size / maxSize));
 	}
 
-	bool InRange (Vector3 pos,Vector3 tar, float range){
-		return Vector3.Distance(tar, pos) <= range;
+	void Update () {
+		timer = Time.time;
+		if (ImAlive()) {
+			var hpCoef = (float)hp/(float)maxHp;
+			var eneCoef = (float)energy/(float)maxEnergy;
+			var speedCoef = (hpCoef + eneCoef)/2;
+			speed = maxSpeed * speedCoef;
+			if (timer - lastTime >= cg.birthdayTime) {
+				if ((float)energy / (float)maxEnergy < starving )
+					hp--;
+				lastTime = timer;
+				Grow();
+			}
+			if (target != null)
+				SendMessage("MoveTo",target.position);
+			else Think ();
+		} else {
+			Die();
+		}
 	}
-
-	void Eat (){
+	
+	void Eat (){ // to energymanager
 		if (target != null) {
 			if (target.gameObject.tag == plTag) {
 				var plant = target.gameObject.GetComponent<Plant>();
@@ -136,24 +142,8 @@ public class CreaturePlant : MonoBehaviour {
 		if (target != null && target.tag == wayTag)
 		Destroy (target.gameObject);
 	}
-
-	void LookAt(Vector3 tar){
-		var newRotation = Quaternion.LookRotation(transform.position - tar, Vector3.forward);
-		transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, (float)speed * cg.speedToRotate);
-	}
-
-	void MoveTo(Vector3 tar){
-		if (!InRange (transform.position, tar, cg.rangeToStop)) {
-			LookAt (tar);
-			transform.Translate (Vector3.back * speed);
-			SetEnergy (- Mathf.RoundToInt(size * speed));
-			Debug.DrawLine (transform.position, tar);
-		} else	{
-			Eat ();
-		}
-	}
-
-	void Walk(){
+	
+	void Walk(){//переписать!!
 		var width = (ui.width / 2) - cg.borderSize;
 		var height = (ui.height / 2) - cg.borderSize;
 
@@ -163,7 +153,7 @@ public class CreaturePlant : MonoBehaviour {
 		NewWayPoint(point);
 	}
 
-	void Run(){
+	void Run(){//переписать!!
 		var width = (ui.width / 2) - cg.borderSize;
 		var height = (ui.height / 2) - cg.borderSize;
 
@@ -186,42 +176,27 @@ public class CreaturePlant : MonoBehaviour {
 	}
 
 	bool SearchFood (){
+		Transform t;
+		t = FindNearest(food);
 
-		food.RemoveAll(o => o == null);
-		if (food.Count > 0){
-
+		if (t != null){
 			DestroyWaypoint();
-			MinDisTarget (food);
+			target = t;
 			return true;
-		} else 
-			return false;
-	}
-
-	void MinDisTarget (List<Transform> tars){
-
-		float dis = float.MaxValue;
-		float minDis = float.MaxValue;
-		foreach (var tar in tars) {
-			dis = (transform.position - tar.position).sqrMagnitude;
-			if (dis < minDis) {
-				target = tar;
-				minDis = dis;
-			}
-		}
-
+		} else return false;
 	}
 
 	bool SearchEnemy (){
-		enemy.RemoveAll(o => o == null);
 
-		if (enemy.Count > 0){
-			MinDisTarget (enemy);
+		Transform t;
+		t = FindNearest(enemy);
+		
+		if (t != null){
 			DestroyWaypoint();
-
-			NewWayPoint(target.transform.position.ToVector2());
+			target = t;
+			NewWayPoint(target.position.ToVector2());
 			return true;
-		}
-		return false;
+		} else return false;
 	}
 
 	void Think(){
@@ -235,7 +210,7 @@ public class CreaturePlant : MonoBehaviour {
 			Walk();
 	}
 
-	void Grow(){
+	void Grow(){// part to vismanager
 		age++;
 		if (age < maxAge * 0.15f){
 			float ageCoef = ((float)age / maxAge) * 6.66f;
@@ -248,47 +223,44 @@ public class CreaturePlant : MonoBehaviour {
 		}
 	}
 
-	void Update () {
-		timer = Time.time;
-		if (ImAlive()) {
-			var hpCoef = (float)hp/(float)maxHp;
-			var eneCoef = (float)energy/(float)maxEnergy;
-			var speedCoef = (hpCoef + eneCoef)/2;
-			speed = maxSpeed * speedCoef;
-			if (timer - lastTime >= cg.birthdayTime) {
-				if ((float)energy / (float)maxEnergy < starving )
-					hp--;
-				lastTime = timer;
-				Grow();
+	Transform FindNearest(List<Transform> tars){
+		Transform t = null;
+		tars.RemoveAll(o => o == null);
+		
+		if (tars.Count > 0){
+			float dis = float.MaxValue;
+			float minDis = float.MaxValue;
+			
+			foreach (var tar in tars) {
+				dis = (transform.position - tar.position).sqrMagnitude;
+				if (dis < minDis) {
+					t = tar;
+					minDis = dis;
+				}
 			}
-			if (target != null)
-				MoveTo(target.position);
-			else Think ();
-		} else {
-			Die();
-		}
+			return t;
+		} else 
+			return null;
 	}
 
-	void OnTriggerEnter (Collider col) {
-		Transform tar = col.transform;
-		if (col.gameObject.tag == plTag){
-			if (!food.Contains(tar)) 
-				food.Add(tar);
-		} else if (col.gameObject.tag == me){
-			//if (col.gameObject.GetComponent<CreatureMeat>().Size > size * 2) //может меня сожрать
-				if (!enemy.Contains(col.transform))
-					enemy.Add(col.transform);
-		}
+	void SeeFood (Transform t){
+		if (!food.Contains(t.transform)) 
+			food.Add(t.transform);
 	}
 
-	void OnTriggerExit (Collider col){
-		Transform tar = col.transform;
+	void SeeEnemy (Transform t){
+		if (!enemy.Contains(t.transform)) 
+			enemy.Add(t.transform);
+	}
 
-		if (col.gameObject.tag == plTag)
-			if (food.Contains(tar)) food.Remove(tar);
+	void EscFood (Transform t){
+		if (food.Contains(t.transform)) 
+			food.Remove(t.transform);
+	}
 
-		if (col.gameObject.tag == me)
-			if (enemy.Contains(tar)) enemy.Remove(tar);
+	void EscEnemy (Transform t){
+		if (!enemy.Contains(t.transform)) 
+			enemy.Remove(t.transform);
 	}
 
 	public bool IsMale { get { return isMale; } }
@@ -301,28 +273,20 @@ public class CreaturePlant : MonoBehaviour {
 
 	public int Size { get { return size; } }
 
-	public void SetMaxAge (int i){
-		maxAge = i;
-	}
-	public void SetMaxSize (int i){
-		maxSize = i;
-	}
-	public void SetMinScale (float i){
-		minScale = i;
-	}
-	public void SetMaxScale (float i){
-		maxScale = i;
-	}
-	public void SetTypeID (int i){
-		typeID = i;
-	}
+	public void SetMaxAge (int i) {maxAge = i; }
 
-	public void SetMaxSpeed (float i){
-		maxSpeed = i;
-	}
+	public void SetMaxSize (int i){maxSize = i; }
+
+	public void SetMinScale (float i){minScale = i; }//to vismanager
+
+	public void SetMaxScale (float i){maxScale = i;	}//to vismanager
+
+	public void SetTypeID (int i){typeID = i; }
+
+	public void SetMaxSpeed (float i){maxSpeed = i;}//to mover
 
 
-	public void SetEnergy(int i){
+	public void SetEnergy(int i){// to energymanager
 		if (energy + i < maxEnergy){
 			energy += i;
 		} else {
