@@ -46,7 +46,7 @@ public sealed class PlantGenerator : MonoBehaviour {
 
 
 	void Start (){
-		ui = GameObject.FindWithTag("Logic").GetComponent<UI>();
+		ui = UI.GUI;
 		gen = false;
 	}
 	void Update (){

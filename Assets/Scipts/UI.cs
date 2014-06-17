@@ -7,7 +7,7 @@ public static class VectorExtension{
 	}
 }
 
-public class UI : MonoBehaviour {
+public sealed class UI : MonoBehaviour {
 
 	public GameObject back;
 	public int countOfCreature;
@@ -28,6 +28,21 @@ public class UI : MonoBehaviour {
 
 
 	//for Creature generator
+
+
+	static readonly UI ui = new UI();
+	
+	static UI() { }  
+	
+	UI() { }  
+	
+	public static UI GUI  
+	{  
+		get  
+		{  
+			return ui;  
+		}  
+	}  
 
 
 

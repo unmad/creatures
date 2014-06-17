@@ -63,7 +63,7 @@ public sealed class CreatureGenerator : MonoBehaviour {
 
 	void Start () {
 		gen = false;
-		ui = GameObject.FindWithTag (loTag).GetComponent<UI>();
+		ui = UI.GUI;
 		creaturePlant = new List<GameObject>();
 	}
 

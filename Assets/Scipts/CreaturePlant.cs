@@ -11,16 +11,10 @@ public class CreaturePlant : MonoBehaviour {
 	int maxAge;
 	int size;
 	int maxSize;
-	public Transform visual;// to vismanager
-	int energy;// to energymanager
-	int maxEnergy;// to energymanager
-	float speed;
-	float maxSpeed;
+
 	bool isMale;
 	bool alive;
 	bool wantFuck;
-	int hp;// to energymanager
-	int maxHp;// to energymanager
 
 	float timer;
 	float lastTime;
@@ -31,18 +25,15 @@ public class CreaturePlant : MonoBehaviour {
 
 	//Magic
 
-	public float starving;// to energymanager
-	public float hungry;// to energymanager
-	float minScale;// to vismanager
-	float maxScale;// to vismanager
+	public float starving;
+	public float hungry;
 	
 	string wayTag = "waypoint";
 
 	//Magic End
 	
 	void Start () {
-		var logic = GameObject.FindWithTag ("Logic");
-		ui = logic.GetComponent<UI>();
+		ui = UI.GUI;
 		cg = CreatureGenerator.CG;
 
 		timer = Time.time;
@@ -51,31 +42,25 @@ public class CreaturePlant : MonoBehaviour {
 		age = 0;
 
 		size = Mathf.RoundToInt(maxSize * 0.1f);
-		maxEnergy = maxSize * cg.sizeToEnergy;
-		energy = maxEnergy / 2;
-		maxHp = maxSize;
-		speed = maxSpeed;
+
+
 
 		if (Random.value < 0.5)
 			isMale = true;
 
 		alive = true;
 		wantFuck = false;
-		hp = maxHp;
+
 		food = new List<Transform>();
 		enemy = new List<Transform>();
-		visual.localScale = Vector3.one * (Mathf.Lerp(minScale, maxScale, (float)size / maxSize));
 	}
 
 	void Update () {
 		timer = Time.time;
 		if (ImAlive()) {
-			var hpCoef = (float)hp/(float)maxHp;
-			var eneCoef = (float)energy/(float)maxEnergy;
-			var speedCoef = (hpCoef + eneCoef)/2;
-			speed = maxSpeed * speedCoef;
+
 			if (timer - lastTime >= cg.birthdayTime) {
-				if ((float)energy / (float)maxEnergy < starving )
+				if ((float)SendMessage("Energy") / (float)SendMessage("MaxEnergy") < starving )
 					hp--;
 				lastTime = timer;
 				Grow();
@@ -87,32 +72,32 @@ public class CreaturePlant : MonoBehaviour {
 			Die();
 		}
 	}
-	
-	void Eat (){ // to energymanager
+
+	void Eat (){ //переписать
 		if (target != null) {
 			if (target.gameObject.tag == plTag) {
 				var plant = target.gameObject.GetComponent<Plant>();
 				if (plant.size < maxSize){
-					SetEnergy(plant.size);
+					SendMessage("Energy", plant.size);
 					plant.SetSize(-plant.size);
 				} else {
-					SetEnergy(maxSize);
+					SendMessage("Energy", maxSize);
 					plant.SetSize(- maxSize);
 				}
 			} else DestroyWaypoint();
 		}
 	}
 
-	bool ImAlive (){
+	bool ImAlive (){ //переписать
 		if (age > maxAge) {
 			Debug.Log("Die Age");
 			return false;
 		}
-		if (energy <= 0){
+		if (SendMessage("Energy") <= 0){
 			Debug.Log("Die Energy");
 			return false;
 		}
-		if (hp <= 0) {
+		if (SendMessage ("Hp") <= 0) {
 			Debug.Log("Die HP");
 			return false;
 		}
@@ -123,14 +108,14 @@ public class CreaturePlant : MonoBehaviour {
 		Vector3 pos = transform.position;
 		GameObject p = (GameObject)Instantiate(corpsePrefab, pos, transform.rotation);
 		var vis = p.GetComponent<CreatureCorpse> ();
-		vis.visual.transform.localScale = visual.transform.localScale;
+		vis.visual.transform.localScale = SendMessage("Scale");
 
 		int pSize;
 
-		if (energy < 1) 
+		if (SendMessage("Energy") < 1) 
 			pSize = size;
 		else
-			pSize = size * energy;
+			pSize = size * SendMessage("Energy");
 
 		p.GetComponent<CreatureCorpse> ().SetSize (pSize);
 		DestroyWaypoint();
@@ -143,22 +128,19 @@ public class CreaturePlant : MonoBehaviour {
 		Destroy (target.gameObject);
 	}
 	
-	void Walk(){//переписать!!
+	void Run(string s){
 		var width = (ui.width / 2) - cg.borderSize;
 		var height = (ui.height / 2) - cg.borderSize;
+		Vector2 point;
 
-		var point = transform.position.ToVector2() + Random.insideUnitCircle * cg.wayPointRange;
-		point.x = Mathf.Clamp(point.x, -width, width );
-		point.y = Mathf.Clamp(point.y, -height, height);
-		NewWayPoint(point);
-	}
+		if (s == "walk") {
+			point = target.position.ToVector2 () - transform.position.ToVector2 ();
+			point = transform.position.ToVector2 () - point;
+		}
 
-	void Run(){//переписать!!
-		var width = (ui.width / 2) - cg.borderSize;
-		var height = (ui.height / 2) - cg.borderSize;
+		if (s == "run")
+			point = transform.position.ToVector2() + Random.insideUnitCircle * cg.wayPointRange;
 
-		var point = target.position.ToVector2 () - transform.position.ToVector2();
-		point = transform.position.ToVector2() - point;
 		point.x = Mathf.Clamp(point.x, -width, width );
 		point.y = Mathf.Clamp(point.y, -height, height);
 		NewWayPoint (point);
@@ -201,22 +183,22 @@ public class CreaturePlant : MonoBehaviour {
 
 	void Think(){
 
-		if ((float)energy / (float)maxEnergy > starving) {
+		if ((float)SendMessage("Energy") / (float)SendMessage("maxEnergy") > starving) {
 			if (SearchEnemy())
-				Run();
+				Run("run");
 			else if (!SearchFood())
-				Walk();
+				Run("walk");
 		} else if (!SearchFood())
-			Walk();
+			Run("walk");
 	}
 
-	void Grow(){// part to vismanager
+	void Grow(){//переписать
 		age++;
 		if (age < maxAge * 0.15f){
 			float ageCoef = ((float)age / maxAge) * 6.66f;
 			size = 1 + Mathf.RoundToInt(Mathf.Lerp(0.5f, (float)maxSize, ageCoef));
 			visual.localScale = Vector3.one * (Mathf.Lerp(minScale, maxScale, (float)size / maxSize));
-
+			
 		} else if (size != maxSize) {
 			size = maxSize;
 			visual.localScale = Vector3.one * maxScale;
@@ -277,20 +259,8 @@ public class CreaturePlant : MonoBehaviour {
 
 	public void SetMaxSize (int i){maxSize = i; }
 
-	public void SetMinScale (float i){minScale = i; }//to vismanager
-
-	public void SetMaxScale (float i){maxScale = i;	}//to vismanager
-
 	public void SetTypeID (int i){typeID = i; }
 
-	public void SetMaxSpeed (float i){maxSpeed = i;}//to mover
 
 
-	public void SetEnergy(int i){// to energymanager
-		if (energy + i < maxEnergy){
-			energy += i;
-		} else {
-			energy = maxEnergy;
-		}
-	}
 }

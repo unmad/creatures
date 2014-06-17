@@ -4,19 +4,23 @@ using System.Collections;
 public class Mover : MonoBehaviour {
 
 	float speed;
-	float MaxSpeed;
+	float maxSpeed;
 	float speedToRotate;
 	float rangeToStop;
+	float speedCoef;
+
 	int energyToMove;
+
 
 
 	void Start () {
 		speedToRotate = CreatureGenerator.CG.speedToRotate;
 		rangeToStop = CreatureGenerator.CG.rangeToStop;
+		speed = maxSpeed;
 	}
 
 	void Update () {
-	
+
 	}
 
 	void MoveTo(Vector3 tar){
@@ -35,6 +39,10 @@ public class Mover : MonoBehaviour {
 
 	void SetSpeed(float i){speed = i;}
 
+	void SpeedCoef(float i){speedCoef = i;}
+
 	void SetEnergyToMove(int i){energyToMove = i;}
+
+	public void SetMaxSpeed (float i){maxSpeed = i;}
 
 }
