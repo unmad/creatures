@@ -14,13 +14,11 @@ public class Mover : MonoBehaviour {
 
 
 	void Start () {
-		speedToRotate = CreatureGenerator.CG.speedToRotate;
-		rangeToStop = CreatureGenerator.CG.rangeToStop;
-		speed = maxSpeed;
+		
 	}
 
 	void Update () {
-
+		
 	}
 
 	void MoveTo(Vector3 tar){
@@ -37,12 +35,16 @@ public class Mover : MonoBehaviour {
 		return Vector3.Distance(tar, pos) <= range;
 	}
 
-	void SetSpeed(float i){speed = i;}
+	public void SetSpeed(float i){speed = maxSpeed * i;}
 
-	void SpeedCoef(float i){speedCoef = i;}
+	public void SetSpeedCoef(float i){speedCoef = i;}
 
-	void SetEnergyToMove(int i){energyToMove = i;}
+	public void SetEnergyToMove(int i){energyToMove = i;}
 
 	public void SetMaxSpeed (float i){maxSpeed = i;}
+
+	public void SetSpeedToRotate(float i){speed = i;}
+
+	public void SetRangeToStop(float i){speed = i;}
 
 }

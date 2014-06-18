@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Islands;
 
 public static class VectorExtension{
 	public static Vector2 ToVector2 (this Vector3 v3){
@@ -7,7 +8,7 @@ public static class VectorExtension{
 	}
 }
 
-public sealed class UI : MonoBehaviour {
+public sealed class UI : Singleton<UI> {
 
 	public GameObject back;
 	public int countOfCreature;
@@ -17,36 +18,16 @@ public sealed class UI : MonoBehaviour {
 	public int height;
 	public GUIText text;
 	
-	public bool play;
-	public bool playing;
+	public bool play = false;
+	public bool playing = false;
 
-	PlantGenerator pg = PlantGenerator.PG;
-	CreatureGenerator cg = CreatureGenerator.CG;
-
-
-	//for plant generator
-
-
-	//for Creature generator
-
-
-	static readonly UI ui = new UI();
-	
-	static UI() { }  
-	
-	UI() { }  
-	
-	public static UI GUI  
-	{  
-		get  
-		{  
-			return ui;  
-		}  
-	}  
-
-
+	public PlantGenerator pg;
+	public CreatureGenerator cg;
 
 	void Start (){
+		pg = PlantGenerator.Instance;
+		cg = CreatureGenerator.Instance;
+
 		Camera.main.orthographicSize = (float)height/2;
 		back.transform.localScale = new Vector3(width, height, 0f);
 	}

@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Islands;
 
-public sealed class PlantGenerator : MonoBehaviour {
+public class PlantGenerator : Singleton<PlantGenerator> {
 
 	public GameObject plantPrefab;
 	public int soilRichness; // плодородность почвы в процентах 0-99
@@ -29,24 +30,8 @@ public sealed class PlantGenerator : MonoBehaviour {
 
 	//Magic End
 
-	static readonly PlantGenerator pg = new PlantGenerator();
-
-	static PlantGenerator() { }  
-	
-	PlantGenerator() { }  
-	
-	public static PlantGenerator PG  
-	{  
-		get  
-		{  
-			return pg;  
-		}  
-	}  
-
-
-
 	void Start (){
-		ui = UI.GUI;
+		ui = UI.Instance;
 		gen = false;
 	}
 	void Update (){

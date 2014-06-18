@@ -1,21 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Islands;
 
-public class CreatureType : MonoBehaviour {
+public class CreatureType {
 	public int id;
 	public bool eatMeat;
 	public bool eatPlant;
-	public float typeScale;
 	public int typeSize;
-	public float minscale;
-	public float maxscale;
-	public float typeSpeed;
 }
 
-public sealed class CreatureGenerator : MonoBehaviour {
+public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 	public GameObject creaturePlantPrefab;
-	public List<GameObject> creaturePlant;
+	public List<GameObject> creatures;
 	UI ui;
 	public bool gen;
 	List<CreatureType> CTypes;
@@ -25,7 +22,6 @@ public sealed class CreatureGenerator : MonoBehaviour {
 	public float minTypesScale = 0.5f;
 	public float maxTypesScale = 1.5f;
 
-	string loTag = "Logic";
 	string wayTag = "waypoint";
 
 
@@ -33,8 +29,8 @@ public sealed class CreatureGenerator : MonoBehaviour {
 	public string s = "For Creatures";
 
 	public int maxAge = 500;
-	public int maxTypeSize = 500;
-	public int minTypeSize = 100;
+	public int maxTypesSize = 500;
+	public int minTypesSize = 100;
 	public int sizeToEnergy = 100;
 
 	public float birthdayTime = 0.5f;
@@ -47,24 +43,10 @@ public sealed class CreatureGenerator : MonoBehaviour {
 
 	//Magic End
 
-	static readonly CreatureGenerator cg = new CreatureGenerator();
-	
-	static CreatureGenerator() { }  
-	
-	CreatureGenerator() { }  
-	
-	public static CreatureGenerator CG  
-	{  
-		get  
-		{  
-			return cg;  
-		}  
-	}  
-
 	void Start () {
 		gen = false;
-		ui = UI.GUI;
-		creaturePlant = new List<GameObject>();
+		ui = UI.Instance;
+		creatures = new List<GameObject>();
 	}
 
 	void Update () {
@@ -81,36 +63,60 @@ public sealed class CreatureGenerator : MonoBehaviour {
 		if (CTypes[type].eatPlant && !CTypes[type].eatMeat){ //травоядное
 
 			GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(x, y, 0),Quaternion.identity);
-			var cre = p.GetComponent<CreaturePlant>();
-			SetInitVar(cre, maxAge, CTypes[type].typeSize, CTypes[type].minscale, CTypes[type].maxscale, type, CTypes[type].typeSpeed);
-			creaturePlant.Add(p);
+			SetInitVar(p, type);
+			creatures.Add(p);
 		}
-
-		if (CTypes[type].eatPlant && CTypes[type].eatMeat){ //всеядное
-			
-			GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(x, y, 0),Quaternion.identity);
-			var cre = p.GetComponent<CreaturePlant>();
-			SetInitVar(cre, maxAge, CTypes[type].typeSize, CTypes[type].minscale, CTypes[type].maxscale, type, CTypes[type].typeSpeed);
-			creaturePlant.Add(p);
-		}
-
-		if (!CTypes[type].eatPlant && CTypes[type].eatMeat){ //плотоядное
-			
-			GameObject p = (GameObject)Instantiate(creaturePlantPrefab,new Vector3(x, y, 0),Quaternion.identity);
-			var cre = p.GetComponent<CreaturePlant>();
-			SetInitVar(cre, maxAge, CTypes[type].typeSize, CTypes[type].minscale, CTypes[type].maxscale, type, CTypes[type].typeSpeed);
-			creaturePlant.Add(p);
-		}
-
 	}
 
-	void SetInitVar(CreaturePlant cre, int maxAge, int maxSize, float minScale, float maxScale, int typeID, float maxSpeed){	//заменить на общий класс кричера
-		cre.SetMaxAge(maxAge);
-		cre.SetMaxSize(maxSize);
-		cre.SetMinScale(minScale);
-		cre.SetMaxScale(maxScale);
-		cre.SetTypeID(typeID);
-		cre.SetMaxSpeed(maxSpeed);
+	void SetInitVar(GameObject cre, int type){
+		// забить все начальные переменные через сендмесседж
+		// creature
+		int typeID = type;
+		int age = 0;
+		int maxage = maxAge;
+		int maxSize = CTypes[type].typeSize;
+		int size = Mathf.RoundToInt(maxSize * 0.1f);
+		// energy
+		int maxEnergy = maxSize * sizeToEnergy;
+		int energy = Mathf.RoundToInt(maxEnergy / 2);
+		int eat = size;
+		int maxHp = size;
+		int hp = maxHp;
+		//mover
+		float maxSpeed = Mathf.Lerp(minSpeedRange, maxSpeedRange, maxSize / maxTypesSize);
+		float speed = maxSpeed;
+		float speedtoRotate = speedToRotate;
+		float rangetoStop = rangeToStop;
+		float speedCoef = 1;
+		int energyToMove = Mathf.RoundToInt(size * 0.1f);
+		//visual
+		float minScale = Mathf.Lerp(minTypesScale, maxTypesScale, maxSize / maxTypesSize) * 0.3f;
+		float maxScale = Mathf.Lerp(minTypesScale, maxTypesScale, maxSize / maxTypesSize);
+		float scale = minScale;
+
+		// creature
+		cre.SendMessage("SetTypeID", typeID);
+		cre.SendMessage("SetAge", age);
+		cre.SendMessage("SetMaxAge", maxage);
+		cre.SendMessage("SetSize", size);
+		cre.SendMessage("SetMaxSize", maxSize);
+		// energy
+		cre.SendMessage("SetEnergy", energy);
+		cre.SendMessage("SetMaxEnergy", maxEnergy);
+		cre.SendMessage("SetEat", eat);
+		cre.SendMessage("SetHp", hp);
+		cre.SendMessage("SetMaxHp", maxHp);
+		//mover
+		cre.SendMessage("SetSpeed", speed);
+		cre.SendMessage("SetMaxSpeed", maxSpeed);
+		cre.SendMessage("SetSpeedToRotate", speedtoRotate);
+		cre.SendMessage("SetRangeToStop", rangetoStop);
+		cre.SendMessage("SetSpeedCoef", speedCoef);
+		cre.SendMessage("SetEnergyToMove", energyToMove);
+		//visual
+		cre.SendMessage("SetScale", scale);
+		cre.SendMessage("SetMinScale", minScale);
+		cre.SendMessage("SetMaxScale", maxScale);
 	}
 
 	void GenerateTypes(){
@@ -119,14 +125,9 @@ public sealed class CreatureGenerator : MonoBehaviour {
 		for (int cot = 0; cot < ui.countOfTypes; cot++){
 			CreatureType ct = new CreatureType();
 			ct.id = cot;
-			ct.eatMeat = false;
-			ct.eatPlant = true;
-			ct.typeScale = Random.Range(minTypesScale, maxTypesScale);
-			ct.typeSize  = Random.Range(minTypeSize, maxTypeSize);
-			ct.minscale = ct.typeScale * 0.3f;
-			ct.maxscale = ct.typeScale;
-			float typeSizeCoef = 1f - ((float)ct.typeSize / (float)maxTypeSize);
-			ct.typeSpeed = Mathf.Lerp(minSpeedRange, maxSpeedRange, typeSizeCoef);
+			ct.eatMeat = false; //потом зарандомить
+			ct.eatPlant = true; //потом зарандомить
+			ct.typeSize  = Random.Range(minTypesSize, maxTypesSize);
 
 			CTypes.Add(ct);
 		}
@@ -164,9 +165,13 @@ public sealed class CreatureGenerator : MonoBehaviour {
 			Destroy(c);
 		}
 
-		creaturePlant.ForEach (Destroy);
-		creaturePlant.Clear ();
-		CTypes.ForEach (Destroy);
+//		foreach (var ct in CTypes){
+//			Destroy(ct);
+//		}
+
+		creatures.ForEach (Destroy);
+		creatures.Clear ();
+//		CTypes.ForEach (Destroy);
 		CTypes.Clear ();
 	}
 }

@@ -19,11 +19,19 @@ public class CreatureCorpse : MonoBehaviour {
 			Destroy (this.gameObject);
 	}
 
+	public void EatMe(Eating vEat, GameObject cre){
+		
+		if (vEat.eat > size){
+			SetSize(0);
+			vEat.eat = size;
+		} else
+			SetSize(-vEat.eat);
+		
+		cre.SendMessage("SetEnergy", vEat.eat);
+	}
+
 	public void SetSize(int i){
 		size += i;
 	}
-
-
-	public int GetSize { get { return size; } }
 
 }

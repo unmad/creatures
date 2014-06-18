@@ -19,20 +19,20 @@ public class Eyesight : MonoBehaviour {
 	void OnTriggerEnter (Collider col) {
 
 		if (col.gameObject.tag == plTag){
-			cre.SendMessage("SeeFood", col);
+			cre.SendMessage("SeeFood", col.transform);
 		}
 		
 		if (col.gameObject.tag == meea){
-			cre.SendMessage("SeeEnemy", col);
+			cre.SendMessage("SeeEnemy", col.transform);
 		}
 	}
 	
 	void OnTriggerExit (Collider col){
 
 		if (col.gameObject.tag == plTag)
-			cre.SendMessage("EscFood", col);
+			cre.SendMessage("EscFood", col.transform);
 		if (col.gameObject.tag == meea)
-			cre.SendMessage("EscEnemy", col);
+			cre.SendMessage("EscEnemy", col.transform);
 	}
 
 }
