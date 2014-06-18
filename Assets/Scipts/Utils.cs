@@ -23,4 +23,8 @@ public class Utils : MonoBehaviour {
 		} else 
 			return null;
 	}
+
+	public static bool InRange (Vector3 pos,Vector3 tar, float range){
+		return Vector3.Distance(tar, pos) <= range;
+	}
 }

@@ -13,10 +13,6 @@ public class VisualManager : MonoBehaviour {
 
 	void Start () {
 		cg = CreatureGenerator.Instance;
-		minScale = cg.minTypesScale; //переписать когда будет генератор!!!
-		maxScale = cg.maxTypesScale; //переписать когда будет генератор!!!
-		visual.localScale = Vector3.one * (Mathf.Lerp(minScale, maxScale, scale));  
-
 	}
 
 	void Update () {
@@ -25,13 +21,11 @@ public class VisualManager : MonoBehaviour {
 
 	public void SetScale (float i){
 		scale = i;
-
 		visual.localScale = Vector3.one * (Mathf.Lerp(minScale, maxScale, scale));
 	}
 
 	public void SetMinScale (float i){minScale = i; }
 	
 	public void SetMaxScale (float i){maxScale = i;	}
-
-	public float Scale {get {return scale;}}
+	
 }

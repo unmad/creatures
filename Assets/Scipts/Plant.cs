@@ -63,7 +63,7 @@ public class Plant : MonoBehaviour {
 
 	}
 
-	public void EatMe(Eating vEat, GameObject cre){
+	public void EatMe(Eating vEat){
 
 		if (vEat.eat > size){
 			SetSize(-1);
@@ -71,7 +71,7 @@ public class Plant : MonoBehaviour {
 		} else
 			SetSize(-vEat.eat);
 		
-		cre.SendMessage("SetEnergy", vEat.eat);
+		vEat.i.SendMessage("SetEnergy", vEat.eat);
 	}
 
 	public int GetSize { get { return size; } }
