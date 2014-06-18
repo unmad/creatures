@@ -68,13 +68,48 @@ public class CreaturePlant : MonoBehaviour {
 			if (timer - lastTime >= cg.birthdayTime) {
 				lastTime = timer;
 				Grow();
+				SendMessage("IStarving");
 			}
-			if (target != null)
-				SendMessage("MoveTo",target.position);
-			else Think ();
-		} else {
-			Die();
+	
+			if (target == null)
+				Think ();
+			else SendMessage("MoveTo", target.position);
+
+		} else Die();
+	}
+
+	void Think(){
+		DestroyWaypoint();
+		if (starving){
+
+			if (SearchFood()){ //если голодаем ищем еду
+				SendMessage("MoveTo", target.position); //идем к еде
+			} else 
+				Run("walk"); //если еды нету, гуляем, упорно пытаемся наткнутся на еду
+
+		} else if (!SearchEnemy()){
+
+			if (wantFuck){
+//				if (SearchFuck) //нувыпонели
+//					MoveTo();
+//				else 
+//					Run ("walk"); //ищем приключений
+			} else 
+				Run("walk");
+
+		} else 
+			Run("run"); //убегаем от вражин
+	}
+
+	public void InPosition(){
+		if (target.tag == wayTag){
+			DestroyWaypoint();
+			Think();
 		}
+		else if (food.Contains(target))
+			SendMessage("Eat", target.gameObject);
+//		else if (fuckers.Contains(target))
+//			SendMessage("Fuck");
 	}
 
 	void Die(){
@@ -117,6 +152,7 @@ public class CreaturePlant : MonoBehaviour {
 		point.x = Mathf.Clamp(point.x, -width, width );
 		point.y = Mathf.Clamp(point.y, -height, height);
 		NewWayPoint (point);
+		SendMessage("MoveTo", target.position);
 	}
 
 	void NewWayPoint(Vector2 point){
@@ -154,23 +190,14 @@ public class CreaturePlant : MonoBehaviour {
 		} else return false;
 	}
 
-	void Think(){
 
-		if (starving) {
-			if (SearchEnemy())
-				Run("run");
-			else if (!SearchFood())
-				Run("walk");
-		} else if (!SearchFood())
-			Run("walk");
-	}
 
 	void Grow(){
 		age++;
 		if (age < maxAge * 0.15f){
 			float ageCoef = ((float)age / maxAge) * 6.66f;
-			size = 1 + Mathf.RoundToInt(Mathf.Lerp(0.5f, (float)maxSize, ageCoef));
-			SendMessage("SetScale", size / maxSize);
+			size = Mathf.RoundToInt(Mathf.Lerp((float)maxSize * 0.5f, (float)maxSize, ageCoef)); //какаята страшная магия О_о
+			SendMessage("SetScale", (float)size / maxSize);
 			
 		} else if (size != maxSize) {
 			size = maxSize;
@@ -181,11 +208,14 @@ public class CreaturePlant : MonoBehaviour {
 	void SeeFood (Transform t){
 		if (!food.Contains(t.transform)) 
 			food.Add(t.transform);
+		if (food.Count < 1)
+			SendMessage("Think");
 	}
 
 	void SeeEnemy (Transform t){
 		if (!enemy.Contains(t.transform)) 
 			enemy.Add(t.transform);
+		Think();
 	}
 
 	void EscFood (Transform t){
@@ -221,7 +251,5 @@ public class CreaturePlant : MonoBehaviour {
 	public void SetMaxSize (int i){maxSize = i; }
 
 	public void SetTypeID (int i){typeID = i; }
-
-
-
+	
 }

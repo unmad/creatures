@@ -22,29 +22,28 @@ public class Mover : MonoBehaviour {
 	}
 
 	void MoveTo(Vector3 tar){
-		if (!InRange (transform.position, tar, rangeToStop)) {
+		if (!Utils.InRange (transform.position, tar, rangeToStop)) {
 			var newRotation = Quaternion.LookRotation(transform.position - tar, Vector3.forward);
 			transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, (float)speed * speedToRotate);
 			transform.Translate (Vector3.back * speed);
-			SendMessage("SetEnergy", - energyToMove);
-			//Debug.DrawLine (transform.position, tar);
-		}
+			SendMessage("SetEnergy", - Mathf.RoundToInt(energyToMove * speedCoef));
+			Debug.DrawLine (transform.position, tar);
+		} else SendMessage("InPosition");
 	}
 
-	bool InRange (Vector3 pos,Vector3 tar, float range){
-		return Vector3.Distance(tar, pos) <= range;
+	public void SetSpeed(float i){speed = i;}
+
+	public void SetSpeedCoef(float i){
+		speedCoef = i;
+		speed = maxSpeed * speedCoef;
 	}
-
-	public void SetSpeed(float i){speed = maxSpeed * i;}
-
-	public void SetSpeedCoef(float i){speedCoef = i;}
 
 	public void SetEnergyToMove(int i){energyToMove = i;}
 
 	public void SetMaxSpeed (float i){maxSpeed = i;}
 
-	public void SetSpeedToRotate(float i){speed = i;}
+	public void SetSpeedToRotate(float i){speedToRotate = i;}
 
-	public void SetRangeToStop(float i){speed = i;}
+	public void SetRangeToStop(float i){rangeToStop = i;}
 
 }
