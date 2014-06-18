@@ -40,7 +40,7 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 	public float sizeRangeCoef = 0.2f;
 	public float minSpeedRange = 0.02f;
 	public float maxSpeedRange = 0.1f;
-	public float sizeToMove = 0.2f;
+
 	//Magic End
 
 	void Start () {
@@ -82,13 +82,13 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 		int eat = size;
 		int maxHp = size;
 		int hp = maxHp;
-		//moverf
-		float maxSpeed = Mathf.Lerp(minSpeedRange, maxSpeedRange, 1f - maxSize / maxTypesSize);
+		//mover
+		float maxSpeed = Mathf.Lerp(minSpeedRange, maxSpeedRange, maxSize / maxTypesSize);
 		float speed = maxSpeed;
 		float speedtoRotate = speedToRotate;
 		float rangetoStop = rangeToStop;
 		float speedCoef = 1;
-		int energytoMove = Mathf.RoundToInt(sizeToMove * size);
+		int energyToMove = Mathf.RoundToInt(size * 0.1f);
 		//visual
 		float minScale = Mathf.Lerp(minTypesScale, maxTypesScale, maxSize / maxTypesSize) * 0.3f;
 		float maxScale = Mathf.Lerp(minTypesScale, maxTypesScale, maxSize / maxTypesSize);
@@ -112,7 +112,7 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 		cre.SendMessage("SetSpeedToRotate", speedtoRotate);
 		cre.SendMessage("SetRangeToStop", rangetoStop);
 		cre.SendMessage("SetSpeedCoef", speedCoef);
-		cre.SendMessage("SetEnergyToMove", energytoMove);
+		cre.SendMessage("SetEnergyToMove", energyToMove);
 		//visual
 		cre.SendMessage("SetScale", scale);
 		cre.SendMessage("SetMinScale", minScale);

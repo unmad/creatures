@@ -18,8 +18,8 @@ public class EnergyManager : MonoBehaviour {
 	float timer;
 	float lastTime;
 
-	float starving = 0.3f;
-	float hungry = 0.8f;
+	public float starving;
+	public float hungry;
 
 	CreatureGenerator cg;
 
@@ -41,43 +41,37 @@ public class EnergyManager : MonoBehaviour {
 				hp--;
 			lastTime = timer;
 		}
+
+		if (energy / maxEnergy < starving)
+			SendMessage("starving", true);
 	}
 
 	void Eat (GameObject target){
+		if (target != null) {
 
-		if (energy > maxEnergy * hungry){
-			SendMessage("Starving", false);
+			int eatE = eat;
+
+			if (energy + eatE < maxEnergy){
+				eatE = eat;
+			} else {
+				eatE = maxEnergy - energy;
+			}
+
+			Eating(eatE, target);
 		}
-
-		if (energy == maxEnergy)
-			SendMessage("Think");
-
-		int eatE = eat;
-
-		if (energy + eatE < maxEnergy){
-			eatE = eat;
-		} else {
-			eatE = maxEnergy - energy;
-		}
-
-		Eating(eatE, target);
 	}
 
 	void Eating (int eat, GameObject target){
 		var vEat = new Eating();
 		vEat.eat = eat;
-		vEat.i = this.gameObject;
-		target.SendMessage("EatMe", vEat);
+		target.SendMessage("EatMe", this.gameObject);
 	}
 
-	public void IStarving (){
-		if ((float)energy / maxEnergy < starving)
-			SendMessage("Starving", true);
-		else
-			SendMessage("Starving", false);
-	}
 
-	public void SetEnergy(int i){energy += i;}
+
+	public void SetEnergy(int i){
+		energy += i;
+	}
 
 	public void SetMaxEnergy(int i){maxEnergy = i;}
 

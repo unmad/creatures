@@ -21,8 +21,8 @@ public sealed class UI : Singleton<UI> {
 	public bool play = false;
 	public bool playing = false;
 
-	PlantGenerator pg;
-	CreatureGenerator cg;
+	public PlantGenerator pg;
+	public CreatureGenerator cg;
 
 	void Start (){
 		pg = PlantGenerator.Instance;
