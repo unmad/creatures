@@ -58,7 +58,7 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 		}
 	}
 
-	void GrowAt(int type, float x, float y){
+	public void GrowAt(int type, float x, float y){
 
 		if (CTypes[type].eatPlant && !CTypes[type].eatMeat){ //травоядное
 
@@ -82,7 +82,7 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 		int eat = size;
 		int maxHp = size;
 		int hp = maxHp;
-		//moverf
+		//mover
 		float maxSpeed = Mathf.Lerp(minSpeedRange, maxSpeedRange, 1f - maxSize / maxTypesSize);
 		float speed = maxSpeed;
 		float speedtoRotate = speedToRotate;

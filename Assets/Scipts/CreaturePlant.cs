@@ -15,6 +15,7 @@ public class CreaturePlant : MonoBehaviour {
 	int maxSize;
 
 	bool isMale;
+	bool isAdult;
 	bool alive;
 	bool wantFuck;
 	bool starving;
@@ -43,6 +44,7 @@ public class CreaturePlant : MonoBehaviour {
 		lastTime = timer;
 
 		age = 0;
+		isAdult = false;
 
 		size = Mathf.RoundToInt(maxSize * 0.1f);
 
@@ -88,12 +90,15 @@ public class CreaturePlant : MonoBehaviour {
 				Run("walk"); //если еды нету, гуляем, упорно пытаемся наткнутся на еду
 
 		} else if (!SearchEnemy()){
+			if (isAdult)
+				if (!wantFuck) 
+					wantFuck = true;
 
 			if (wantFuck){
-//				if (SearchFuck) //нувыпонели
-//					MoveTo();
-//				else 
-//					Run ("walk"); //ищем приключений
+				if (SearchFuck()) //нувыпонели
+					SendMessage("MoveTo", target.position);
+				else 
+					Run ("walk"); //ищем приключений
 			} else 
 				Run("walk");
 
@@ -108,8 +113,15 @@ public class CreaturePlant : MonoBehaviour {
 		}
 		else if (food.Contains(target))
 			SendMessage("Eat", target.gameObject);
-//		else if (fuckers.Contains(target))
-//			SendMessage("Fuck");
+
+		else if (target.tag == "creature"){
+
+			if (!isMale)
+				cg.GrowAt(typeID, transform.position.x, transform.position.y);
+
+			SendMessage("SetEnergy", -500);
+			wantFuck = false;
+		}
 	}
 
 	void Die(){
@@ -190,7 +202,32 @@ public class CreaturePlant : MonoBehaviour {
 		} else return false;
 	}
 
+	bool SearchFuck (){
 
+		List<Transform>  tars;
+		tars = new List<Transform>();
+
+		var ts = GameObject.FindGameObjectsWithTag("Creature");
+
+		foreach (var t in ts) {
+
+			CreaturePlant cp = t.GetComponent<CreaturePlant>();
+			int ct = cp.TypeID;
+
+			if (ct == typeID && cp.IsMale != isMale && cp.IsAdult){
+				tars.Add(t.transform);
+			}
+		}
+
+		Transform ta = Utils.FindNearest(transform, tars);
+
+		if (ta != null){
+			DestroyWaypoint();
+			target = ta;
+			Debug.Log("Go fuck!");
+			return true;
+		} else return false;
+	}
 
 	void Grow(){
 		age++;
@@ -200,6 +237,7 @@ public class CreaturePlant : MonoBehaviour {
 			SendMessage("SetScale", (float)size / maxSize);
 			
 		} else if (size != maxSize) {
+			isAdult = true;
 			size = maxSize;
 			SendMessage("SetScale",1);
 		}
@@ -231,6 +269,8 @@ public class CreaturePlant : MonoBehaviour {
 	}
 
 	public bool IsMale { get { return isMale; } }
+
+	public bool IsAdult { get { return isAdult; } }
 
 	public int TypeID { get { return typeID; } }
 
