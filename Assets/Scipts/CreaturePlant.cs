@@ -115,9 +115,12 @@ public class CreaturePlant : MonoBehaviour {
 			SendMessage("Eat", target.gameObject);
 
 		else if (target.tag == "creature"){
-
-			if (!isMale)
+			Debug.Log("Target Creature");
+			if (!isMale){
+				Debug.Log("im female");
 				cg.GrowAt(typeID, transform.position.x, transform.position.y);
+				Debug.Log("Grow!");
+			}
 
 			SendMessage("SetEnergy", -500);
 			wantFuck = false;
@@ -235,11 +238,13 @@ public class CreaturePlant : MonoBehaviour {
 			float ageCoef = ((float)age / maxAge) * 6.66f;
 			size = Mathf.RoundToInt(Mathf.Lerp((float)maxSize * 0.5f, (float)maxSize, ageCoef)); //какаята страшная магия О_о
 			SendMessage("SetScale", (float)size / maxSize);
+			//Debug.Log("size " + (float)size / maxSize);
 			
-		} else if (size != maxSize) {
+		} else if (!isAdult) {
+			Debug.Log("Is adult!!");
 			isAdult = true;
-			size = maxSize;
-			SendMessage("SetScale",1);
+			//size = maxSize;
+			//SendMessage("SetScale",1);
 		}
 	}
 
