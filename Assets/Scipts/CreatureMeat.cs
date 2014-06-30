@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class CreaturePlant : MonoBehaviour {
+public class CreatureMeat : MonoBehaviour {
 
 	public GameObject corpsePrefab;
 
@@ -241,8 +241,6 @@ public class CreaturePlant : MonoBehaviour {
 			
 		} else if (!isAdult) {
 			isAdult = true;
-			//size = maxSize;
-			//SendMessage("SetScale",1);
 		}
 	}
 

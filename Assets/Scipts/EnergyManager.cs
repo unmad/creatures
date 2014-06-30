@@ -18,7 +18,7 @@ public class EnergyManager : MonoBehaviour {
 	float timer;
 	float lastTime;
 
-	float starving = 0.3f;
+	float starving = 0.5f;
 	float hungry = 0.8f;
 
 	CreatureGenerator cg;
@@ -30,7 +30,9 @@ public class EnergyManager : MonoBehaviour {
 	}
 	
 	void Update () {
+
 		timer = Time.time;
+
 		var hpCoef = (float)hp / (float)maxHp;
 		var eneCoef = (float)energy / (float)maxEnergy;
 		var speedCoef = (hpCoef + eneCoef)/2;
@@ -77,13 +79,23 @@ public class EnergyManager : MonoBehaviour {
 			SendMessage("Starving", false);
 	}
 
-	public void SetEnergy(int i){energy += i;}
+	public void SetEnergy(int i){
+		energy += i;
+		IStarving();
+
+		if (energy < 1)
+			SendMessage("Die");
+	}
 
 	public void SetMaxEnergy(int i){maxEnergy = i;}
 
 	public void SetEat(int i){eat = i;}
 
-	public void SetHp(int i){hp += i;}
+	public void SetHp(int i){
+		hp += i;
+		if (hp < 1)
+			SendMessage("Die");
+	}
 
 	public void SetMaxHp(int i){maxHp = i;}
 
