@@ -216,10 +216,12 @@ public class CreaturePlant : MonoBehaviour {
 
 			CreaturePlant cp = t.GetComponent<CreaturePlant>();
 
-			int ct = cp.TypeID;
+			if (cp != null){ 
+				int ct = cp.TypeID;
 
-			if (ct == typeID && cp.IsMale != isMale && cp.IsAdult){
-				tars.Add(t.transform);
+				if (ct == typeID && cp.IsMale != isMale && cp.IsAdult){
+					tars.Add(t.transform);
+				}
 			}
 		}
 

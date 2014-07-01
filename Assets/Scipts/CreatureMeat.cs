@@ -24,6 +24,7 @@ public class CreatureMeat : MonoBehaviour {
 	float lastTime;
 
 	List<Transform> food;
+	List<Transform> lFood;
 	List<Transform> enemy;
 
 	Transform target;
@@ -61,6 +62,7 @@ public class CreatureMeat : MonoBehaviour {
 		SendMessage("SetMaxHp", maxSize);
 
 		food = new List<Transform>();
+		lFood = new List<Transform>();
 		enemy = new List<Transform>();
 	}
 
@@ -183,7 +185,13 @@ public class CreatureMeat : MonoBehaviour {
 
 	bool SearchFood (){
 		Transform t;
-		t = Utils.FindNearest(transform, food);
+
+		if (food.Count > 0){
+			t = Utils.FindNearest(transform, food);
+		} else if (lFood.Count > 0){
+			t = Utils.FindNearest(transform, lFood);
+		} else 
+			return false;
 
 		if (t != null){
 			DestroyWaypoint();
@@ -214,12 +222,14 @@ public class CreatureMeat : MonoBehaviour {
 
 		foreach (var t in ts) {
 
-			CreaturePlant cp = t.GetComponent<CreaturePlant>();
+			CreatureMeat cp = t.GetComponent<CreatureMeat>();
 
-			int ct = cp.TypeID;
+			if (cp != null){
+				int ct = cp.TypeID;
 
-			if (ct == typeID && cp.IsMale != isMale && cp.IsAdult){
-				tars.Add(t.transform);
+				if (ct == typeID && cp.IsMale != isMale && cp.IsAdult){
+					tars.Add(t.transform);
+				}
 			}
 		}
 
@@ -250,6 +260,14 @@ public class CreatureMeat : MonoBehaviour {
 		if (food.Count < 1)
 			SendMessage("Think");
 	}
+
+	void SeeLiveFood (Transform t){
+		if (!lFood.Contains(t.transform)) 
+			lFood.Add(t.transform);
+		if (lFood.Count < 1)
+			SendMessage("Think");
+	}
+
 
 	void SeeEnemy (Transform t){
 		if (!enemy.Contains(t.transform)) 

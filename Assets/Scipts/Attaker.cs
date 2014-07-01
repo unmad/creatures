@@ -3,12 +3,7 @@ using System.Collections;
 
 public class Attaker : MonoBehaviour {
 
-
-	void Start () {
-	
-	}
-	
-	void Update () {
-	
+	void Attack(GameObject cre){
+		cre.SendMessage("SetHp", -50);
 	}
 }

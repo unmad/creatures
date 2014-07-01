@@ -12,6 +12,7 @@ public class CreatureType {
 
 public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 	public GameObject creaturePlantPrefab;
+	public GameObject creatureMeatPrefab;
 	public List<GameObject> creatures;
 	UI ui;
 	public bool gen;
@@ -66,6 +67,14 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 			SetInitVar(p, type);
 			creatures.Add(p);
 		}
+
+		if (!CTypes[type].eatPlant && CTypes[type].eatMeat){ //травоядное
+			
+			GameObject p = (GameObject)Instantiate(creatureMeatPrefab,new Vector3(x, y, 0),Quaternion.identity);
+			SetInitVar(p, type);
+			creatures.Add(p);
+		}
+
 	}
 
 	void SetInitVar(GameObject cre, int type){
@@ -125,8 +134,8 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 		for (int cot = 0; cot < ui.countOfTypes; cot++){
 			CreatureType ct = new CreatureType();
 			ct.id = cot;
-			ct.eatMeat = false; //потом зарандомить
-			ct.eatPlant = true; //потом зарандомить
+			ct.eatMeat = Random.value >= 0.5f; //потом зарандомить
+			ct.eatPlant = Random.value >= 0.5f; //потом зарандомить
 			ct.typeSize  = Random.Range(minTypesSize, maxTypesSize);
 
 			CTypes.Add(ct);
