@@ -255,35 +255,37 @@ public class CreatureMeat : MonoBehaviour {
 	}
 
 	void SeeFood (Transform t){
-		if (!food.Contains(t.transform)) 
-			food.Add(t.transform);
+		if (!food.Contains(t)) 
+			food.Add(t);
 		if (food.Count < 1)
-			SendMessage("Think");
+			Think();
 	}
 
 	void SeeLiveFood (Transform t){
-		if (!lFood.Contains(t.transform)) 
-			lFood.Add(t.transform);
+
+		if (!lFood.Contains(t)) 
+			lFood.Add(t);
+
 		if (lFood.Count < 1)
-			SendMessage("Think");
+			Think();
 	}
 
 
 	void SeeEnemy (Transform t){
-		if (!enemy.Contains(t.transform)) 
-			enemy.Add(t.transform);
+		if (!enemy.Contains(t)) 
+			enemy.Add(t);
 		Think();
 	}
 
 	void EscFood (Transform t){
-		if (food.Contains(t.transform)) 
-			food.Remove(t.transform);
+		if (food.Contains(t)) 
+			food.Remove(t);
 		food.RemoveAll(o => o == null);
 	}
 
 	void EscEnemy (Transform t){
-		if (!enemy.Contains(t.transform)) 
-			enemy.Remove(t.transform);
+		if (!enemy.Contains(t)) 
+			enemy.Remove(t);
 		enemy.RemoveAll(o => o == null);
 	}
 

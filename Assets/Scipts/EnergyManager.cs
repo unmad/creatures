@@ -40,7 +40,7 @@ public class EnergyManager : MonoBehaviour {
 
 		if (timer - lastTime >= cg.birthdayTime) {
 			if ((float)energy / maxEnergy < starving )
-				hp--;
+				SetHp(-1);
 			lastTime = timer;
 		}
 	}
@@ -93,8 +93,10 @@ public class EnergyManager : MonoBehaviour {
 
 	public void SetHp(int i){
 		hp += i;
+
 		if (hp < 1)
 			SendMessage("Die");
+
 	}
 
 	public void SetMaxHp(int i){maxHp = i;}

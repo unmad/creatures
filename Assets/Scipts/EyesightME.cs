@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class EyesightME : MonoBehaviour {
 
-	string plTag = "Creature";
+	string creTag = "Creature";
 	string corTag = "Corpse";
 	string meea = "MeatEater";
 	GameObject cre;
@@ -19,14 +19,22 @@ public class EyesightME : MonoBehaviour {
 
 	void OnTriggerEnter (Collider col) {
 
-		if (col.gameObject.tag == plTag){
-			cre.SendMessage("SeeLiveFood", col.transform);
-		}
+		var cTag = col.gameObject.tag;
 
-		if (col.gameObject.tag == corTag){
-			cre.SendMessage("SeeFood", col.transform);
-		}
+		Debug.Log(cTag);
 
+		if (cTag != "Plant"){
+
+			if (col.gameObject.tag == creTag){
+				cre.SendMessage("SeeLiveFood", col.transform);
+				Debug.DrawLine(transform.position, col.transform.position, Color.red);
+			}
+
+			if (col.gameObject.tag == corTag){
+				cre.SendMessage("SeeFood", col.transform);
+				Debug.DrawLine(transform.position, col.transform.position, Color.yellow);
+			}
+		}
 		
 //		if (col.gameObject.tag == meea){
 //			cre.SendMessage("SeeEnemy", col.transform);
@@ -35,7 +43,7 @@ public class EyesightME : MonoBehaviour {
 	
 	void OnTriggerExit (Collider col){
 
-		if (col.gameObject.tag == plTag)
+		if (col.gameObject.tag == creTag)
 			cre.SendMessage("EscFood", col.transform);
 //		if (col.gameObject.tag == meea)
 //			cre.SendMessage("EscEnemy", col.transform);
