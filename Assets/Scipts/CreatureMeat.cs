@@ -257,17 +257,20 @@ public class CreatureMeat : MonoBehaviour {
 	void SeeFood (Transform t){
 		if (!food.Contains(t)) 
 			food.Add(t);
-		if (food.Count < 1)
+		if (food.Count == 1)
 			Think();
 	}
 
 	void SeeLiveFood (Transform t){
 
-		if (!lFood.Contains(t)) 
-			lFood.Add(t);
+		if (t.GetComponent<CreaturePlant>() != null){
 
-		if (lFood.Count < 1)
-			Think();
+			if (!lFood.Contains(t)) 
+				lFood.Add(t);
+
+			if (lFood.Count == 1)
+				Think();
+		}
 	}
 
 

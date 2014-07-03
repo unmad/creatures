@@ -251,7 +251,7 @@ public class CreaturePlant : MonoBehaviour {
 	void SeeFood (Transform t){
 		if (!food.Contains(t)) 
 			food.Add(t);
-		if (food.Count < 1)
+		if (food.Count == 1)
 			Think();
 	}
 
