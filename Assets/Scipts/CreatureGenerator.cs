@@ -16,6 +16,7 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 	public List<GameObject> creatures;
 	UI ui;
 	public bool gen;
+	public bool genmeateater;
 	List<CreatureType> CTypes;
 
 	//Magic
@@ -134,8 +135,15 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 		for (int cot = 0; cot < ui.countOfTypes; cot++){
 			CreatureType ct = new CreatureType();
 			ct.id = cot;
-			ct.eatMeat = Random.value >= 0.5f; //потом зарандомить
-			ct.eatPlant = Random.value >= 0.5f; //потом зарандомить
+
+			if (genmeateater){
+				ct.eatMeat = Random.value >= 0.5f;
+				ct.eatPlant = Random.value >= 0.5f;
+			}else {
+				ct.eatMeat = false;
+				ct.eatPlant = true;
+			}
+
 			ct.typeSize  = Random.Range(minTypesSize, maxTypesSize);
 
 			CTypes.Add(ct);

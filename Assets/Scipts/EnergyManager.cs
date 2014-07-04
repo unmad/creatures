@@ -47,10 +47,6 @@ public class EnergyManager : MonoBehaviour {
 
 	void Eat (GameObject target){
 
-		if (energy > maxEnergy * hungry){
-			SendMessage("Starving", false);
-		}
-
 		if (energy == maxEnergy)
 			SendMessage("Think");
 
@@ -72,19 +68,14 @@ public class EnergyManager : MonoBehaviour {
 		target.SendMessage("EatMe", vEat);
 	}
 
-	public void IStarving (){
-		if ((float)energy / maxEnergy < starving)
-			SendMessage("Starving", true);
-		else
-			SendMessage("Starving", false);
-	}
-
 	public void SetEnergy(int i){
 		energy += i;
-		IStarving();
 
 		if (energy < 1)
 			SendMessage("Die");
+
+		float hungryCoef = (float)1 - (float)energy / (float)maxEnergy;
+		SendMessage("SetHungryCoef", hungryCoef);
 	}
 
 	public void SetMaxEnergy(int i){maxEnergy = i;}

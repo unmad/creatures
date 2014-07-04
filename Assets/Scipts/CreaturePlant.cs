@@ -18,7 +18,6 @@ public class CreaturePlant : MonoBehaviour {
 	bool isAdult;
 	bool alive;
 	bool wantFuck;
-	bool starving;
 
 	float timer;
 	float lastTime;
@@ -29,6 +28,21 @@ public class CreaturePlant : MonoBehaviour {
 	Transform target;
 
 	CreatureGenerator cg;
+
+	//States
+
+	float hungryCoef;
+	float wantFuckCoef;
+	float fearCoef;
+	float idleCoef = 0.2f;
+
+	bool eatState;
+	bool fuckState;
+	bool runState;
+	bool idleState;
+
+	//States end
+
 
 	//Magic
 
@@ -55,7 +69,6 @@ public class CreaturePlant : MonoBehaviour {
 
 		alive = true;
 		wantFuck = false;
-		starving = false;
 
 		SendMessage("SetMaxEnergy", maxSize * cg.sizeToEnergy);
 		SendMessage("SetMaxHp", maxSize);
@@ -70,7 +83,6 @@ public class CreaturePlant : MonoBehaviour {
 			if (timer - lastTime >= cg.birthdayTime) {
 				lastTime = timer;
 				Grow();
-				SendMessage("IStarving");
 			}
 	
 			if (target == null)
@@ -81,20 +93,20 @@ public class CreaturePlant : MonoBehaviour {
 	}
 
 	void Think(){
+		UpdateState();
 		DestroyWaypoint();
-		if (starving){
+		if (eatState){
 
 			if (SearchFood()){ //если голодаем ищем еду
 				SendMessage("MoveTo", target.position); //идем к еде
 			} else 
 				Run("walk"); //если еды нету, гуляем, упорно пытаемся наткнутся на еду
 
-		} else if (!SearchEnemy()){
+		} else if (!runState){
 			if (isAdult)
-				if (!wantFuck) 
-					wantFuck = true;
+				wantFuckCoef = 0.5f; //переписать на более вменяемое!!!
 
-			if (wantFuck){
+			if (fuckState){
 				if (SearchFuck()) //нувыпонели
 					SendMessage("MoveTo", target.position);
 				else 
@@ -116,13 +128,13 @@ public class CreaturePlant : MonoBehaviour {
 
 		else if (target.tag == "Creature"){
 
-			if (!starving){
+			if (fuckState){
 
 				if (!isMale)
 					cg.GrowAt(typeID, transform.position.x, transform.position.y);
 
 				SendMessage("SetEnergy", -5000);
-				wantFuck = false;
+				UpdateState();
 			} else Think();
 		}
 	}
@@ -146,6 +158,27 @@ public class CreaturePlant : MonoBehaviour {
 
 	}
 
+	void UpdateState(){
+
+		eatState = fuckState = runState = idleState = false;
+
+		float maxcoef = Mathf.Max(hungryCoef, wantFuckCoef, fearCoef, idleCoef);
+
+		if (maxcoef == hungryCoef){
+			eatState = true;
+			Debug.Log("eatState");
+		}else if (maxcoef == wantFuckCoef){
+			fuckState = true;
+			Debug.Log("fuckState");
+		}else if (maxcoef == fearCoef){
+			runState = true;
+			Debug.Log("runState");
+		}else if (maxcoef == idleCoef){
+			idleState = true;
+			Debug.Log("idleState");
+		}
+	}
+	
 	void DestroyWaypoint(){
 		if (target != null && target.tag == wayTag)
 		Destroy (target.gameObject);
@@ -258,6 +291,9 @@ public class CreaturePlant : MonoBehaviour {
 	void SeeEnemy (Transform t){
 		if (!enemy.Contains(t)) 
 			enemy.Add(t);
+
+		fearCoef = 0.8f; //переписать на более вменяемое!!!
+
 		Think();
 	}
 
@@ -281,11 +317,15 @@ public class CreaturePlant : MonoBehaviour {
 
 	public bool Life { get { return alive; } }
 
-	public bool WantFuck { get { return wantFuck; } }
+	//public bool WantFuck { get { return wantFuck; } }
 
 	public int Size { get { return size; } }
 
-	public void Starving (bool i) {starving = i; }
+	public void SetFearCoef (float i) {fearCoef = i; }
+
+	public void SetWantFuckCoef (float i) {wantFuckCoef = i; }
+
+	public void SetHungryCoef (float i) {hungryCoef = i; }
 
 	public void SetAge (int i) {age = i; }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Eyesight : MonoBehaviour {
 
 	string plTag = "Plant";
-	string meea = "MeatEater";
+	string creTag = "Creature";
 	GameObject cre;
 
 	void Start () {
@@ -22,7 +22,7 @@ public class Eyesight : MonoBehaviour {
 			cre.SendMessage("SeeFood", col.transform);
 		}
 		
-		if (col.gameObject.tag == meea){
+		if (col.gameObject.tag == creTag){
 			cre.SendMessage("SeeEnemy", col.transform);
 		}
 	}
@@ -31,7 +31,7 @@ public class Eyesight : MonoBehaviour {
 
 		if (col.gameObject.tag == plTag)
 			cre.SendMessage("EscFood", col.transform);
-		if (col.gameObject.tag == meea)
+		if (col.gameObject.tag == creTag)
 			cre.SendMessage("EscEnemy", col.transform);
 	}
 

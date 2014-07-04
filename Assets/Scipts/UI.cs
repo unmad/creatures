@@ -34,13 +34,15 @@ public sealed class UI : Singleton<UI> {
 	
 	void OnGUI () {
 
-		if(GUI.Button(new Rect(5, 10, 60, 20), "play")) {
+		if(GUI.Button(new Rect(5, 10, 80, 20), "play")) {
 			PlayPause();
 		}
 
-		countOfCreature = (int) GUI.HorizontalScrollbar (new Rect (5, 50, 60, 20), countOfCreature, 1, 2, 10);
-		countOfTypes = (int) GUI.HorizontalScrollbar (new Rect (5, 70, 60, 20), countOfTypes, 1, 1, 10);
-		soilRichness = (int) GUI.HorizontalScrollbar (new Rect (5, 90, 60, 20), soilRichness, 1, 1, 100);
+		countOfCreature = (int) GUI.HorizontalScrollbar (new Rect (5, 50, 80, 20), countOfCreature, 1, 2, 10);
+		countOfTypes = (int) GUI.HorizontalScrollbar (new Rect (5, 70, 80, 20), countOfTypes, 1, 1, 10);
+		soilRichness = (int) GUI.HorizontalScrollbar (new Rect (5, 90, 80, 20), soilRichness, 1, 5, 100);
+
+		cg.genmeateater = GUI.Toggle(new Rect(5, 110, 80, 20), cg.genmeateater, "meat eater");
 	}
 	void Update (){
 		if (play)
