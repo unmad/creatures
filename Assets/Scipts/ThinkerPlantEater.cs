@@ -2,22 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class CreaturePlant : MonoBehaviour {
-
-	public GameObject corpsePrefab;
+public class ThinkerPlantEater : MonoBehaviour {
 
 	UI ui;
-
-	int typeID;
-	int age;
-	int maxAge;
-	int size;
-	int maxSize;
-
-	bool isMale;
-	bool isAdult;
-	bool alive;
-	bool wantFuck;
 
 	float timer;
 	float lastTime;
@@ -26,6 +13,8 @@ public class CreaturePlant : MonoBehaviour {
 	List<Transform> enemy;
 
 	Transform target;
+
+	Creature im;
 
 	CreatureGenerator cg;
 
@@ -53,25 +42,10 @@ public class CreaturePlant : MonoBehaviour {
 	void Start () {
 		ui = UI.Instance;
 		cg = CreatureGenerator.Instance;
+		im = GetComponent<Creature>();
 
 		timer = Time.time;
 		lastTime = timer;
-
-		age = 0;
-		isAdult = false;
-
-		size = Mathf.RoundToInt(maxSize * 0.1f);
-
-
-
-		if (Random.value < 0.5)
-			isMale = true;
-
-		alive = true;
-		wantFuck = false;
-
-		SendMessage("SetMaxEnergy", maxSize * cg.sizeToEnergy);
-		SendMessage("SetMaxHp", maxSize);
 
 		food = new List<Transform>();
 		enemy = new List<Transform>();
@@ -79,17 +53,10 @@ public class CreaturePlant : MonoBehaviour {
 
 	void Update () {
 		timer = Time.time;
-		if (age < maxAge) {
-			if (timer - lastTime >= cg.birthdayTime) {
-				lastTime = timer;
-				Grow();
-			}
-	
-			if (target == null)
-				Think ();
-			else SendMessage("MoveTo", target.position);
-
-		} else Die();
+		if (target == null)
+			Think ();
+		else 
+			SendMessage("MoveTo", target.position);
 	}
 
 	void Think(){
@@ -103,59 +70,41 @@ public class CreaturePlant : MonoBehaviour {
 				Run("walk"); //если еды нету, гуляем, упорно пытаемся наткнутся на еду
 
 		} else if (!runState){
-			if (isAdult)
+			if (im.IsAdult)
 				wantFuckCoef = 0.5f; //переписать на более вменяемое!!!
 
 			if (fuckState){
 				if (SearchFuck()) //нувыпонели
 					SendMessage("MoveTo", target.position);
-				else 
+				else {
 					Run ("walk"); //ищем приключений
-			} else 
+				}
+			} else {
 				Run("walk");
-
-		} else 
+			}
+		} else {
 			Run("run"); //убегаем от вражин
+		}
 	}
 
 	public void InPosition(){
 		if (target.tag == wayTag){
 			DestroyWaypoint();
 			Think();
-		}
-		else if (food.Contains(target))
+		}else if (food.Contains(target))
 			SendMessage("Eat", target.gameObject);
 
 		else if (target.tag == "Creature"){
 
 			if (fuckState){
 
-				if (!isMale)
-					cg.GrowAt(typeID, transform.position.x, transform.position.y);
+				if (!im.IsMale)
+					cg.GrowAt(im.TypeID, transform.position.x, transform.position.y);
 
 				SendMessage("SetEnergy", -5000);
 				UpdateState();
 			} else Think();
 		}
-	}
-
-	void Die(){
-		Vector3 pos = transform.position;
-		GameObject p = (GameObject)Instantiate(corpsePrefab, pos, transform.rotation);
-		//var vis = p.GetComponent<CreatureCorpse> ();
-		//vis.visual.transform.localScale = size / maxSize;
-
-		int pSize;
-
-		//if (SendMessage("Energy") < 1) 
-			pSize = size;
-		//else
-		//	pSize = size * SendMessage("Energy");
-
-		p.GetComponent<CreatureCorpse> ().SetSize (pSize);
-		DestroyWaypoint();
-		Destroy (this.gameObject);
-
 	}
 
 	void UpdateState(){
@@ -173,7 +122,7 @@ public class CreaturePlant : MonoBehaviour {
 		}else if (maxcoef == fearCoef){
 			runState = true;
 			Debug.Log("runState");
-		}else if (maxcoef == idleCoef){
+		}else {
 			idleState = true;
 			Debug.Log("idleState");
 		}
@@ -215,27 +164,30 @@ public class CreaturePlant : MonoBehaviour {
 	}
 
 	bool SearchFood (){
-		Transform t;
-		t = Utils.FindNearest(transform, food);
+		if (food.Count > 0){
+			Transform t;
+			t = Utils.FindNearest(transform, food);
 
-		if (t != null){
-			DestroyWaypoint();
-			target = t;
-			return true;
+			if (t != null){
+				DestroyWaypoint();
+				target = t;
+				return true;
+			} else return false;
 		} else return false;
 	}
 
 	bool SearchEnemy (){
-
-		Transform t;
-		t = Utils.FindNearest(transform, enemy);
-		
-		if (t != null){
-			DestroyWaypoint();
-			target = t;
-			NewWayPoint(target.position.ToVector2());
-			return true;
-		} else return false;
+		if (enemy.Count > 0){
+			Transform t;
+			t = Utils.FindNearest(transform, enemy);
+			
+			if (t != null){
+				DestroyWaypoint();
+				target = t;
+				NewWayPoint(target.position.ToVector2());
+				return true;
+			} else return false;
+		}	else return false;
 	}
 
 	bool SearchFuck (){
@@ -247,38 +199,21 @@ public class CreaturePlant : MonoBehaviour {
 
 		foreach (var t in ts) {
 
-			CreaturePlant cp = t.GetComponent<CreaturePlant>();
+			Creature cp = t.GetComponent<Creature>(); 
+			int ct = cp.TypeID;
 
-			if (cp != null){ 
-				int ct = cp.TypeID;
-
-				if (ct == typeID && cp.IsMale != isMale && cp.IsAdult){
+			if (ct == im.TypeID && cp.IsMale != im.IsMale && cp.IsAdult){
 					tars.Add(t.transform);
-				}
 			}
 		}
 
-		Transform ta = Utils.FindNearest(transform, tars);
-
-		if (ta != null){
+		if (tars.Count > 0){
+			Transform ta = Utils.FindNearest(transform, tars);
 			DestroyWaypoint();
 			target = ta;
 			return true;
-		} else return false;
-	}
-
-	void Grow(){
-		age++;
-		if (age < maxAge * 0.15f){
-			float ageCoef = ((float)age / maxAge) * 6.66f;
-			size = Mathf.RoundToInt(Mathf.Lerp((float)maxSize * 0.5f, (float)maxSize, ageCoef)); //какаята страшная магия О_о
-			SendMessage("SetScale", (float)size / maxSize);
-			
-		} else if (!isAdult) {
-			isAdult = true;
-			//size = maxSize;
-			//SendMessage("SetScale",1);
-		}
+		} else 
+			return false;
 	}
 
 	void SeeFood (Transform t){
@@ -309,32 +244,10 @@ public class CreaturePlant : MonoBehaviour {
 		enemy.RemoveAll(o => o == null);
 	}
 
-	public bool IsMale { get { return isMale; } }
-
-	public bool IsAdult { get { return isAdult; } }
-
-	public int TypeID { get { return typeID; } }
-
-	public bool Life { get { return alive; } }
-
-	//public bool WantFuck { get { return wantFuck; } }
-
-	public int Size { get { return size; } }
-
 	public void SetFearCoef (float i) {fearCoef = i; }
 
 	public void SetWantFuckCoef (float i) {wantFuckCoef = i; }
 
 	public void SetHungryCoef (float i) {hungryCoef = i; }
 
-	public void SetAge (int i) {age = i; }
-
-	public void SetMaxAge (int i) {maxAge = i; }
-
-	public void SetSize (int i){size = i; }
-
-	public void SetMaxSize (int i){maxSize = i; }
-
-	public void SetTypeID (int i){typeID = i; }
-	
 }

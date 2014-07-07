@@ -17,7 +17,7 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 	UI ui;
 	public bool gen;
 	public bool genmeateater;
-	List<CreatureType> CTypes;
+	public List<CreatureType> CTypes;
 
 	//Magic
 	public float borderSize = 1f;
