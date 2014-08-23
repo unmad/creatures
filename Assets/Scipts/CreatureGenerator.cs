@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Islands;
@@ -14,7 +14,7 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 	public GameObject creaturePlantPrefab;
 	public GameObject creatureMeatPrefab;
 	public List<GameObject> creatures;
-	UI ui;
+	myUI ui;
 	public bool gen;
 	public bool genmeateater;
 	public List<CreatureType> CTypes;
@@ -47,7 +47,7 @@ public sealed class CreatureGenerator : Singleton<CreatureGenerator> {
 
 	void Start () {
 		gen = false;
-		ui = UI.Instance;
+		ui = myUI.Instance;
 		creatures = new List<GameObject>();
 	}
 

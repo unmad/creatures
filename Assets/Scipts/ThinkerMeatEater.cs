@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class ThinkerMeatEater : MonoBehaviour {
 	
-	UI ui;
+	myUI ui;
 	
 	float timer;
 	float lastTime;
@@ -42,7 +42,7 @@ public class ThinkerMeatEater : MonoBehaviour {
 	//Magic End
 	
 	void Start () {
-		ui = UI.Instance;
+		ui = myUI.Instance;
 		cg = CreatureGenerator.Instance;
 		im = GetComponent<Creature>();
 		

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Plant : MonoBehaviour {
@@ -6,7 +6,7 @@ public class Plant : MonoBehaviour {
 	public int size;
 	public Material[] mats;
 
-	UI ui;
+	myUI ui;
 	PlantGenerator pg;
 
 	int material = 0;
@@ -16,7 +16,7 @@ public class Plant : MonoBehaviour {
 
 	void Start () {
 		pg = GameObject.FindWithTag ("Logic").GetComponent<PlantGenerator>();
-		ui = GameObject.FindWithTag ("Logic").GetComponent<UI>();
+		ui = GameObject.FindWithTag ("Logic").GetComponent<myUI>();
 		timer = Time.time;
 		lastTime = timer;
 		nextTime = Random.Range (pg.minNextTime, pg.maxNextTime);

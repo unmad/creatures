@@ -7,8 +7,9 @@ public class PlantGenerator : Singleton<PlantGenerator> {
 
 	public GameObject plantPrefab;
 	public int soilRichness; // плодородность почвы в процентах 0-99
+	public int countOfPlants;
 	List<GameObject> plants;
-	UI ui;
+	myUI ui;
 	public bool gen;
 
 	//Magic
@@ -31,15 +32,17 @@ public class PlantGenerator : Singleton<PlantGenerator> {
 	//Magic End
 
 	void Start (){
-		ui = UI.Instance;
+		ui = myUI.Instance;
 		gen = false;
 	}
 	void Update (){
 		if (!gen & ui.playing){
 			Generate ();
+			//countOfPlants = plants.Count;
 		}
 		if (gen & !ui.playing) {
 			Clear();
+			//countOfPlants = plants.Count;
 		}
 	}
 

@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Creature : MonoBehaviour {
 
 	public GameObject corpsePrefab;
 	
-	UI ui;
+	myUI ui;
 	
 	int typeID;
 	int age;
