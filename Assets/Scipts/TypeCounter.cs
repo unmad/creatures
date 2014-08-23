@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class CreatureCounter : MonoBehaviour {
+public class TypeCounter : MonoBehaviour {
 	public Text txt;
 	myUI ui;
 
@@ -16,7 +16,7 @@ public class CreatureCounter : MonoBehaviour {
 
 	void Update () {
 		if (ui.playing){
-			txt.text = cg.creatures.Count.ToString();
+			//txt.text = cg.creatures.Count.ToString();
 		} else {
 			txt.text = ui.countOfTypes.ToString();
 		}

@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 
-public class TypeCounter : MonoBehaviour {
+public class CreatureCounter : MonoBehaviour {
 	public Text txt;
 	CreatureGenerator cg;
 	myUI ui;

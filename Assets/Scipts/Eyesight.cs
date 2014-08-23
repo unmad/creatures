@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Eyesight : MonoBehaviour {
-
+	string corTag = "Corpse";
 	string plTag = "Plant";
 	string creTag = "Creature";
 	GameObject creObj;
@@ -22,6 +22,10 @@ public class Eyesight : MonoBehaviour {
 
 		if (col.gameObject.tag == plTag){
 			creObj.SendMessage("SeeFood", col.transform);
+		}
+
+		if (col.gameObject.tag == corTag){
+			creObj.SendMessage("SeeCorpse", col.transform);
 		}
 		
 		if (col.gameObject.tag == creTag){
